@@ -26,7 +26,7 @@ Eval.assertContentHasItems = function(selector, message) {
   return t.assertEval(this.contentHasItems, message, Arguments);
 }
 
-Eval.assertItemHasCotent = function(itemSelector, contentSelector, message) {
+Eval.assertItemHasContent = function(itemSelector, contentSelector, message) {
   var Arguments = {
     'itemSelector' : itemSelector,
     'contentSelector' : contentSelector
