@@ -69,10 +69,13 @@ Eval.dump = function(element) {
  * A Jenkins specific wrapper to title assertions.
  */
 Eval.assertTitle = function(title, message) {
-  title = _add_page_title_boilerplate(title, message);
-  return t.assertTitle(title);
+  title = _add_page_title_boilerplate(title);
+  return t.assertTitle(title, message);
 }
 
+Eval.loginRequired = function(message){
+  return Eval.assertTitle('Login Required', message)
+}
 
 Eval.assertViewExists = function(view) {
   var viewSelector = this.getViewSelector(view);
