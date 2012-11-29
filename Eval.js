@@ -14,9 +14,9 @@ Eval.contentHasItems = function(selector) {
 }
 
 
-Eval.itemHasContent = function(itemSelector, contentSelector) {
-  var Item = $(itemselector);
-  return $(contentSelector, Item).length >= 1;
+Eval.itemHasContent = function(selector) {
+  var Item = $(selector.item);
+  return $(selector.content, Item).length >= 1;
 }
 
 Eval.assertContentHasItems = function(selector, message) {
@@ -28,8 +28,11 @@ Eval.assertContentHasItems = function(selector, message) {
 
 Eval.assertItemHasContent = function(itemSelector, contentSelector, message) {
   var Arguments = {
-    'itemSelector' : itemSelector,
-    'contentSelector' : contentSelector
+    'selector': 
+    {
+    'item' : itemSelector,
+    'content' : contentSelector
+    }
   };
 
   return t.assertEval(this.itemHasContent, message, Arguments);
