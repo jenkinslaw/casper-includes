@@ -1,7 +1,7 @@
 
 /**
  * @file 
- * A place to hold general external evaluations.
+ * A place for our domain specific wrappers for casperjs functionality.
  */
 
 var Eval = {};
