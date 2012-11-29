@@ -79,7 +79,6 @@ Eval.loginRequired = function(message){
 
 Eval.assertViewExists = function(view) {
   var viewSelector = this.getViewSelector(view);
-  t.assert()
 }
 
 Eval.getViewSelector = function(view) {
@@ -116,13 +115,20 @@ Eval.assertViewContentHasField = function(view, field) {
 
 Eval.getViewFieldSelector = function(view, field) {
   var selector  = this.getViewContentSelector(view);
-  return selector + ' div.views-row-1 div.'
+  return selector + ' div.views-row-1 div.';
 }
 
-Eval.assertViewFieldHasLink = function(view, link) {
+Eval.assertViewFieldHasLink = function(view, field) {
+  var selector = this.getViewFieldLinkSelector(view, field);
+}
+
+Eval.getViewFieldLinkSelector = function (view, field) {
+  var selector = this.getViewFieldSelector('view', 'field');
+  return selector + ' a';
 }
 
 Eval.getViewFieldURL = function (view, field) {
+  var selector = getViewFieldLinkSelector(view, field);
 }
 
 Eval.assertPageHasForm = function(form) {
@@ -137,7 +143,11 @@ Eval.assertBlockTitle = function(block, title) {
 Eval.assertFormHasField = function(form, field) {
 }
 
-Eval.assertSecondaryMenuExists = function(menu) {
+Eval.assertSecondaryMenuExists = function(menu, menu) {
+}
+
+
+Eval.assertSecondaryMenuName = function (menu, name, message) {
 }
 
 Eval.assertPrimaryMenuExists = function(menu) {
