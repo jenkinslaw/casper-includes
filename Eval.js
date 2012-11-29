@@ -91,7 +91,7 @@ Eval.getViewSelector = function(view) {
 }
 
 Eval.assertViewHasContent = function(view) {
-  var viewSelector = this.getViewSelector(view);
+  var selector  = this.getViewSelector(view);
 }
 
 Eval.assertBlockHasView = function(block, view) {
@@ -134,7 +134,13 @@ Eval.getViewFieldURL = function (view, field) {
 Eval.assertPageHasForm = function(form) {
 }
 
-Eval.assertBlockExists = function(block) {
+Eval.assertBlockExists = function(block, message) {
+  var selector = this.getBlockSelector(block);
+  t.assertSelectorExists(selector, message);
+}
+
+Eval.getBlockSelector = function(block) {
+  return 'div#block-' + block;
 }
 
 Eval.assertBlockTitle = function(block, title) {
@@ -143,11 +149,20 @@ Eval.assertBlockTitle = function(block, title) {
 Eval.assertFormHasField = function(form, field) {
 }
 
-Eval.assertSecondaryMenuExists = function(menu, menu) {
+Eval.assertSecondaryMenuExists = function(menu, message) {
+  var selector = this.getSecondaryMenuSelector(menu);
+  t.assertSelectorExists(selector, message);
+}
+
+Eval.getSecondaryMenuSelector = function(menu) {
+  var selector = this.getBlockSelector('menu-secondary-links');
+  return selector + ' a.menu-' + menu;
 }
 
 
 Eval.assertSecondaryMenuName = function (menu, name, message) {
+  var selector = this.getSecondaryMenuSelector(menu);
+  t.assertSelectorHasText(selector, name, message);
 }
 
 Eval.assertPrimaryMenuExists = function(menu) {
