@@ -1,6 +1,6 @@
 
 /**
-* @file 
+* @file
 * A place for our domain specific wrappers for casperjs functionality.
 */
 
@@ -11,7 +11,7 @@ var Eval = {};
 */
 Eval.dump = function(element) {
   return require('utils').dump(element);
-} 
+}
 
 /**
 * Figures out if there is content given a content selector.
@@ -27,8 +27,8 @@ Eval.itemHasContent = function(selector) {
 }
 
 Eval.assertContentHasItems = function(selector, message) {
-  var Arguments = { 
-    'selector' : selector 
+  var Arguments = {
+    'selector' : selector
   };
   return t.assertEval(this.contentHasItems, message, Arguments);
 }
@@ -45,11 +45,11 @@ Eval.assertItemHasContent = function(itemSelector, contentSelector, message) {
 }
 
 Eval.getHref = function(selector) {
-  var Arguments = { 
-    'selector' : selector 
+  var Arguments = {
+    'selector' : selector
   };
 
-  return casper.evaluate(function(selector){ 
+  return casper.evaluate(function(selector){
     return $(selector).attr('href');
   }, Arguments);
 }
@@ -58,11 +58,11 @@ Eval.getHref = function(selector) {
 * Fetch the text of the first found of given selector.
 */
 Eval.fetchFirstText = function(selector) {
-  var Arguments = { 
-    'selector' : selector 
+  var Arguments = {
+    'selector' : selector
   };
 
-  return casper.evaluate(function(selector){ 
+  return casper.evaluate(function(selector){
     return $(selector + ':first').text();
   }, Arguments);
 }
@@ -86,10 +86,10 @@ Eval.assertViewExists = function(view, message) {
 
 Eval.getViewSelector = function(view) {
   if (this.isBlockView(view)) {
-    return this.getBlockViewSelector(view);   
+    return this.getBlockViewSelector(view);
   }
   else {
-    return 'div.view.view-' + view; 
+    return 'div.view.view-' + view;
   }
 }
 
@@ -100,25 +100,22 @@ Eval.getBlockViewSelector = function(view) {
   return this.getBlockSelector(selector);
 }
 
-Eval.assertViewHasContent = function(view, message) {
-  var selector  = this.getViewSelector(view);
-}
-
 Eval.assertBlockHasView = function(block, view) {
 }
 
 Eval.isBlockView = function(view) {
-  return (typeof view.block != "undefined"); 
+  return (typeof view.block != "undefined");
 }
 
 Eval.assertViewHasContent = function(view, message) {
-  var selector = this.getFirstViewRowSelector(view);
+  var selector = this.getViewFirstRowSelector(view);
+  this.dump(selector);
   return t.assertSelectorExists(selector, message);
 }
 
-Eval.getFirstViewRowSelector = function(view) {
+Eval.getViewFirstRowSelector = function(view) {
   var selector = this.getViewContentSelector(view);
-  return selector + '.views-row-first';
+  return selector + ' .views-row-first';
 }
 
 Eval.getViewContentSelector = function(view) {
