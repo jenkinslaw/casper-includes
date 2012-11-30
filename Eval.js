@@ -1,14 +1,21 @@
 
 /**
- * @file 
- * A place for our domain specific wrappers for casperjs functionality.
- */
+* @file 
+* A place for our domain specific wrappers for casperjs functionality.
+*/
 
 var Eval = {};
 
 /**
- * Figures out if there is content given a content selector.
- */
+* A wrapper for casper's dump function.
+*/
+Eval.dump = function(element) {
+  return require('utils').dump(element);
+} 
+
+/**
+* Figures out if there is content given a content selector.
+*/
 Eval.contentHasItems = function(selector) {
   return $(selector).length >= 1;
 }
@@ -48,8 +55,8 @@ Eval.getHref = function(selector) {
 }
 
 /**
- * Fetch the text of the first found of given selector.
- */
+* Fetch the text of the first found of given selector.
+*/
 Eval.fetchFirstText = function(selector) {
   var Arguments = { 
     'selector' : selector 
@@ -61,63 +68,71 @@ Eval.fetchFirstText = function(selector) {
 }
 
 /**
- * A wrapper for casper's dump function.
- */
-Eval.dump = function(element) {
-  return require('utils').dump(element);
-} 
-
-/**
- * A Jenkins specific wrapper to title assertions.
- */
+* A Jenkins specific wrapper to title assertions.
+*/
 Eval.assertTitle = function(title, message) {
   title = _add_page_title_boilerplate(title);
   return t.assertTitle(title, message);
 }
 
 Eval.loginRequired = function(message){
-  return Eval.assertTitle('Login Required', message)
+  return Eval.assertTitle('Login Required', message);
 }
 
-Eval.assertViewExists = function(view) {
-  var viewSelector = this.getViewSelector(view);
+Eval.assertViewExists = function(view, message) {
+  var selector = this.getViewSelector(view);
+  return t.assertSelectorExists(selector, message);
 }
 
 Eval.getViewSelector = function(view) {
-   if (blockView = this.isBlockView(view)) {
-     view = '';   
-   } else {
-      view = '';
-   }
-   return view;
+  if (this.isBlockView(view)) {
+    return this.getBlockViewSelector(view);   
+  }
+  else {
+    return 'div.view.view-' + view; 
+  }
 }
 
-Eval.assertViewHasContent = function(view) {
+Eval.getBlockViewSelector = function(view) {
+ if (typeof view.id != 'undefined' && typeof view.label != 'undefined') {
+   var selector = 'views-' + view.id + '-' + view.block;
+ }
+  return this.getBlockSelector(selector);
+}
+
+Eval.assertViewHasContent = function(view, message) {
   var selector  = this.getViewSelector(view);
 }
 
 Eval.assertBlockHasView = function(block, view) {
 }
 
-Eval.isBlockView = function(block, view) {
+Eval.isBlockView = function(view) {
+  return (typeof view.block != "undefined"); 
 }
 
-Eval.assertViewHasContent = function(view) {
-  var selector = this.getViewSelector(view);
+Eval.assertViewHasContent = function(view, message) {
+  var selector = this.getFirstViewRowSelector(view);
+  return t.assertSelectorExists(selector, message);
+}
+
+Eval.getFirstViewRowSelector = function(view) {
+  var selector = this.getViewContentSelector(view);
+  return selector + '.views-row-first';
 }
 
 Eval.getViewContentSelector = function(view) {
-   var selector  = this.getViewSelector(view);
-   return selector + ' div.view-content';
+  var selector  = this.getViewSelector(view);
+  return selector + ' div.view-content';
 }
 
 Eval.assertViewContentHasField = function(view, field) {
-   var selector = this.getViewFieldSelector(view, field);
+  var selector = this.getViewFieldSelector(view, field);
 }
 
 Eval.getViewFieldSelector = function(view, field) {
   var selector  = this.getViewContentSelector(view);
-  return selector + ' div.views-row-1 div.';
+  return selector + ' div.views-row-1 div.' + field;
 }
 
 Eval.assertViewFieldHasLink = function(view, field) {
@@ -138,7 +153,7 @@ Eval.assertPageHasForm = function(form) {
 
 Eval.assertBlockExists = function(block, message) {
   var selector = this.getBlockSelector(block);
-  t.assertSelectorExists(selector, message);
+  return t.assertSelectorExists(selector, message);
 }
 
 Eval.getBlockSelector = function(block) {
@@ -153,7 +168,7 @@ Eval.assertFormHasField = function(form, field) {
 
 Eval.assertSecondaryMenuExists = function(menu, message) {
   var selector = this.getSecondaryMenuSelector(menu);
-  t.assertSelectorExists(selector, message);
+  return t.assertSelectorExists(selector, message);
 }
 
 Eval.getSecondaryMenuSelector = function(menu) {
@@ -164,7 +179,7 @@ Eval.getSecondaryMenuSelector = function(menu) {
 
 Eval.assertSecondaryMenuName = function (menu, name, message) {
   var selector = this.getSecondaryMenuSelector(menu);
-  t.assertSelectorHasText(selector, name, message);
+  return t.assertSelectorHasText(selector, name, message);
 }
 
 Eval.assertPrimaryMenuExists = function(menu) {
