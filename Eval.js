@@ -121,7 +121,7 @@ Block.prototype.blockSelector = 'div#block-';
  * Define Drupal Menu and casper behaviors.
  */
 var Menu = function(id){
-  this.id = id;
+  this.id = (typeof id === 'undefined') ? this.getDefaults().id : id;
   this.blockType = 'menu-';
 };
 
@@ -129,6 +129,7 @@ Menu.prototype = new Block('menu');
 
 Menu.prototype.assertItemExists = function(item, message) {
   var selector = this.getItemSelector(item);
+  Eval.dump(selector);
   return t.assertSelectorExists(selector, message);
 };
 
@@ -141,6 +142,12 @@ Menu.prototype.getItemSelector = function(item) {
 Menu.prototype.assertItemName = function (item, name, message) {
   var selector = this.getItemSelector(item);
   return t.assertSelectorHasText(selector, name, message);
+};
+
+Menu.prototype.getDefaults  = function() {
+  return {
+    id : 'secondary-menu'
+  };
 };
 
 /**
