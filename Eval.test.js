@@ -9,6 +9,9 @@ t.assert('assertExists' in menu, 'Menu#assertExists is available.');
 t.assertEqual(menu.getItemSelector('my-menu'), 'div#block-menu-secondary-menu a.menu-my-menu', 'Menu#getItemSelector works.');
 t.assert('assertItemExists' in menu, 'Menu#assertItemExists is available.');
 t.assert('assertItemName' in menu, 'Menu#assertItemName is available.');
+
+menu = new Menu();
+t.assertEqual(menu.getSelector(), 'div#block-menu-secondary-menu', 'The default menu is the secondary menu.');
 t.comment('');
 
 t.comment('Testing the Block object.');
