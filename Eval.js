@@ -70,24 +70,6 @@ Eval.assertPageHasForm = function(form) {
 Eval.assertFormHasField = function(form, field) {
 };
 
-Eval.assertSecondaryMenuExists = function(menu, message) {
-  var selector = this.getSecondaryMenuSelector(menu);
-  return t.assertSelectorExists(selector, message);
-};
-
-Eval.getSecondaryMenuSelector = function(menu) {
-  var selector = Block.getSelector('menu-secondary-links');
-  return selector + ' a.menu-' + menu;
-};
-
-
-Eval.assertSecondaryMenuName = function (menu, name, message) {
-  var selector = this.getSecondaryMenuSelector(menu);
-  return t.assertSelectorHasText(selector, name, message);
-};
-
-Eval.assertPrimaryMenuExists = function(menu) {
-};
 
 // Fetch the text of the first found of given selector.
 Eval.fetchFirstText = function(selector) {
@@ -103,7 +85,7 @@ Eval.fetchFirstText = function(selector) {
 /**
  * Define Drupal Block and casper behaviors.
  */
-Block = function(id, title) {
+var Block = function(id, title) {
   var defaults = {
     id : '',
     title : ''
@@ -113,8 +95,8 @@ Block = function(id, title) {
   this.title = (typeof title === 'undefined') ? defaults.title : title;
 };
 
-Block.prototype.assertExists = function() {
-  var selector = this.getBlockSelector(block);
+Block.prototype.assertExists = function(message) {
+  var selector = this.getSelector();
   return t.assertSelectorExists(selector, message);
 };
 
@@ -123,19 +105,43 @@ Block.prototype.assertHasView = function(view) {
 
 Block.prototype.getSelector = function(block_id) {
   var id = (typeof block_id === 'undefined') ? this.id : block_id;
-  var selector = (typeof this.selector === 'undefined') ?'div#block-' : this.selector;
+  var selector = (typeof this.selector === 'undefined') ?'div#block-' : this.blockSelector;
 
-  return Block.selector + this.id;
+  return selector + this.blockType +  id;
 };
 
 Block.prototype.assertTitle = function(title) {
 };
 
+Block.prototype.blockSelector = 'div#block-';
+
+
 
 /**
  * Define Drupal Menu and casper behaviors.
  */
+var Menu = function(id){
+  this.id = id;
+  this.blockType = 'menu-';
+};
 
+Menu.prototype = new Block('menu');
+
+Menu.prototype.assertItemExists = function(item, message) {
+  var selector = this.getItemSelector(item);
+  return t.assertSelectorExists(selector, message);
+};
+
+Menu.prototype.getItemSelector = function(item) {
+  var selector = this.getSelector();
+  return selector + ' a.menu-' + item;
+};
+
+
+Menu.prototype.assertItemName = function (item, name, message) {
+  var selector = this.getItemSelector(item);
+  return t.assertSelectorHasText(selector, name, message);
+};
 
 /**
  * Definition for a View Field.
@@ -174,7 +180,7 @@ Fields = function(name, items) {
 /**
  * Define Drupal View and casper behaviours.
  */
-View = function(id, display, fields, items, isBox, isTable) {
+var View = function(id, display, fields, items, isBox, isTable) {
   var defaults = {
     'fields' : {},
     'display' : '',
