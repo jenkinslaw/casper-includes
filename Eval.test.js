@@ -3,17 +3,28 @@ var utils          = require('utils');
 var t              = casper.test;
 var system         = require('system');
 var casperTestsDir = system.env._casper_tests;
-var evalFilePath   = casperTestsDir + '/includes/Eval.xhtml';
 var Test           = function(){};
 var testSlow       = casper.cli.get('testSlow');
 
+
 casper.start();
+casper.then(function() {Test.Component();});
 casper.then(function() {Test.Field();});
 casper.then(function() {Test.Menu();});
 casper.then(function() {Test.View();});
 casper.then(function() {if (testSlow == 'yes') Test.Slow();});
 casper.run(function(){t.done();});
 
+
+Test.Component = function() {
+  t.comment('------------------------');
+  t.comment('Testing the Component object.');
+  t.comment('------------------------');
+
+  var component = new Component();
+  t.assert(component instanceof Object, 'The Component object is defined.');
+  t.assertEqual(component.type, 'div', 'The default component type is a div.');
+};
 
 Test.Field = function() {
   t.comment('------------------------');
@@ -23,6 +34,7 @@ Test.Field = function() {
   t.assertEqual(field.selector, 'field-selector', 'The field selector is set properly.');
 
   t.assertEqual(field.getItemSelector('item'), 'field-selector .item', 'Field#geItemSelector works as expected.');
+  t.assert(field instanceof Component, 'Fields are components.');
 };
 
 Test.Menu = function() {
@@ -32,6 +44,7 @@ Test.Menu = function() {
 
   var menu = new Menu('secondary-menu');
 
+  t.assert(menu instanceof Component, 'Menus are components.');
   t.assert(menu instanceof Block, 'The menu is a type of block.');
   t.assertEqual(menu.getSelector(), 'div#block-menu-secondary-menu', 'Menu#getSelector works.');
   t.assert('assertExists' in menu, 'Menu#assertExists is available.');
@@ -50,6 +63,7 @@ Test.View = function() {
   t.comment('------------------------');
 
   var view = new View('whats-new');
+  t.assert(view instanceof Component, 'Views are components.');
 
   t.assertEqual(view.getSelector(), 'div.view.view-whats-new', 'View returns correct view selector when passed a string.');
 
@@ -66,7 +80,7 @@ Test.Block = function() {
   t.comment('------------------------');
 
   var block = new Block('my-block');
-
+  t.assert(block instanceof Component, 'Blocks are components.');
 };
 
 // Loading a page take time.
@@ -76,7 +90,7 @@ Test.Slow = function() {
   t.comment('Testing page dependant functionality.');
   t.comment('-------------------------------------');
 
-  casper.open(evalFilePath).then(function() {
+  casper.open(casperTestsDir + '/includes/View.html').then(function() {
     Test.Slow.View();
   });
 
