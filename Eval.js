@@ -261,7 +261,8 @@ View.prototype.getContentSelector = function() {
 
 View.prototype.assertContentHasField = function(field, message) {
   var selector = this.getFieldSelector(field);
-  return t.assertSelectorExists(selector, message);
+  t.assertSelectorExists(selector, message);
+  return this.getField(field);
 };
 
 View.prototype.getFieldSelector = function(field) {
