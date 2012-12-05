@@ -1,11 +1,35 @@
-var utils = require('utils');
-var t = casper.test;
-var system = require('system');
+// Initializing steps.
+var utils          = require('utils');
+var t              = casper.test;
+var system         = require('system');
 var casperTestsDir = system.env._casper_tests;
+var evalFilePath   = casperTestsDir + '/includes/Eval.xhtml';
+var Test           = function(){};
+var testSlow       = casper.cli.get('testSlow');
+
+casper.start();
+casper.then(function() {Test.Field();});
+casper.then(function() {Test.Menu();});
+casper.then(function() {Test.View();});
+casper.then(function() {if (testSlow == 'yes') Test.Slow();});
+casper.run(function(){t.done();});
 
 
-casper.start(casperTestsDir + '/includes/Eval.xhtml', function() {
+Test.Field = function() {
+  t.comment('------------------------');
+  t.comment('Testing the Field object.');
+  t.comment('------------------------');
+  var field = new Field('field-selector');
+  t.assertEqual(field.selector, 'field-selector', 'The field selector is set properly.');
+
+  t.assertEqual(field.getItemSelector('item'), 'field-selector .item', 'Field#geItemSelector works as expected.');
+};
+
+Test.Menu = function() {
+  t.comment('------------------------');
   t.comment('Testing the Menu object.');
+  t.comment('------------------------');
+
   var menu = new Menu('secondary-menu');
 
   t.assert(menu instanceof Block, 'The menu is a type of block.');
@@ -18,32 +42,55 @@ casper.start(casperTestsDir + '/includes/Eval.xhtml', function() {
   menu = new Menu();
   t.assertEqual(menu.getSelector(), 'div#block-menu-secondary-links', 'The default menu is the secondary menu.');
   t.comment('');
+};
 
-});
-
-casper.then(function() {
+Test.View = function() {
+  t.comment('------------------------');
   t.comment('Testing the View object.');
+  t.comment('------------------------');
+
   var view = new View('whats-new');
 
-  t.assertEqual(view.getSelector(), 'div.view.view-whats-new', 'View returns correct view selector when passed a string');
-  view.assertExists('The of interest views list is present.');
+  t.assertEqual(view.getSelector(), 'div.view.view-whats-new', 'View returns correct view selector when passed a string.');
+
+  view = new View('testview', 'block_2', true);
+  t.assert(view.isBlock, 'This view is a block.');
+  t.assertEqual(view.getSelector(), 'div#block-views-testview-block_2.block-views', 'View returns correct block selector.');
+  t.comment('');
+};
+
+
+Test.Block = function() {
+  t.comment('------------------------');
+  t.comment('Testing the Block object.');
+  t.comment('------------------------');
+
+  var block = new Block('my-block');
+
+};
+
+// Loading a page take time.
+// We can disable these test when we don't need them.
+Test.Slow = function() {
+  t.comment('-------------------------------------');
+  t.comment('Testing page dependant functionality.');
+  t.comment('-------------------------------------');
+
+  casper.open(evalFilePath).then(function() {
+    Test.Slow.View();
+  });
+
+};
+
+Test.Slow.View = function() {
+  t.comment('### Tesing file dependant View stuff. ###');
+  var view = new View('whats-new');
   view.assertHasContent('There are items in the "Of Interest" view.');
-  view.assertContentHasField('pic');
-  view.assertContentHasField('date');
-  view.assertContentHasField('month');
-  view.assertContentHasField('content');
-
-});
-
-
-
-casper.run(function(){
-  t.done();
-});
-
-
-
-
-
-
+  view.assertExists('The of interest views list is present.');
+  view.assertContentHasField('pic', 'The content has a pic field.');
+  view.assertContentHasField('date', 'The content has a date field.')
+    .assertHasItem('month-day', 'The date has a month-day field.');
+  view.assertContentHasField('content','The content has a content field')
+    .assertHasItem('h3 a', 'The cotent field has a link.');
+};
 
