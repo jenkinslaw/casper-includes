@@ -71,6 +71,26 @@ Eval.assertFormHasField = function(form, field) {
 };
 
 
+/**
+ * Defines a generic component class.
+ * All our page components inherit behaviours from this class.
+ */
+var Component = function(type){
+  this.setDefaults(arguments);
+};
+
+Component.prototype.setDefaults = function(id) {
+  var defaults  = this.getDefaults();
+  this.type = (typeof type == 'undefined') ? defaults.type : type;
+  return this;
+};
+
+Component.prototype.getDefaults = function() {
+  return {type : 'div'};
+};
+
+
+
 // Fetch the text of the first found of given selector.
 Eval.fetchFirstText = function(selector) {
   var Arguments = {
@@ -94,6 +114,8 @@ var Block = function(id, title) {
   this.id = (typeof id === 'undefined') ? defaults.id : id;
   this.title = (typeof title === 'undefined') ? defaults.title : title;
 };
+
+Block.prototype = new Component('block');
 
 Block.prototype.assertExists = function(message) {
   var selector = this.getSelector();
@@ -171,6 +193,8 @@ var Field = function(selector, items) {
   return this;
 };
 
+Field.prototype = new Component('div');
+
 Field.prototype.setSelector = function(selector) {
   this.selector = selector;
   return this;
@@ -231,6 +255,8 @@ var View = function(id, display, isBlock, isTable, fields) {
   };
 
 };
+
+View.prototype = new Component('view');
 
 
 View.prototype.setDefaults = function(display, isBlock, isTable, fields) {
