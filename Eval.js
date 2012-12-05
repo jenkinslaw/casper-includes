@@ -103,11 +103,16 @@ Block.prototype.assertExists = function(message) {
 Block.prototype.assertHasView = function(view) {
 };
 
-Block.prototype.getSelector = function(block_id) {
-  var id = (typeof block_id === 'undefined') ? this.id : block_id;
+Block.prototype.getSelector = function(id) {
+  id = (typeof id === 'undefined') ? this.id : id;
   var selector = (typeof this.selector === 'undefined') ?'div#block-' : this.blockSelector;
+  var type = this.getType();
 
-  return selector + this.blockType +  id;
+  return selector + type +  id;
+};
+
+Block.prototype.getType = function() {
+  return (typeof this.blockType === 'undefined') ? '' : this.blockType + '-';
 };
 
 Block.prototype.assertTitle = function(title) {
@@ -122,15 +127,15 @@ Block.prototype.blockSelector = 'div#block-';
  */
 var Menu = function(id){
   this.id = (typeof id === 'undefined') ? this.getDefaults().id : id;
-  this.blockType = 'menu-';
+  this.blockType = 'menu';
 };
 
 Menu.prototype = new Block('menu');
 
 Menu.prototype.assertItemExists = function(item, message) {
   var selector = this.getItemSelector(item);
-  Eval.dump(selector);
-  return t.assertSelectorExists(selector, message);
+  t.assertSelectorExists(selector, message);
+  return this;
 };
 
 Menu.prototype.getItemSelector = function(item) {
@@ -141,7 +146,8 @@ Menu.prototype.getItemSelector = function(item) {
 
 Menu.prototype.assertItemName = function (item, name, message) {
   var selector = this.getItemSelector(item);
-  return t.assertSelectorHasText(selector, name, message);
+  t.assertSelectorHasText(selector, name, message);
+  return this;
 };
 
 Menu.prototype.getDefaults  = function() {
@@ -151,46 +157,70 @@ Menu.prototype.getDefaults  = function() {
 };
 
 /**
- * Definition for a View Field.
+ * Definition Field.
+ * Can be used to follow and assert any item.
  */
-Fields = function(name, items) {
-  var defaults = {
-   'items' : []
-  };
-
-  if (typeof name == 'Array') {
-    this.setFields(name);
-  }
-  else {
-    this.setField(name, items);
-  }
-
-  this.setFields = function(names) {
-    for (var i = 0; i < names.length; i++) {
-      this.setField(name);
-    }
-  };
-
-  this.setField = function(name, items) {
-    items = (typeof items == 'undefined' ? defaults.items : items);
-    this.name = items;
-  };
+var Field = function(selector, items) {
+  this.setSelector(selector);
+  this.setDefaults(items);
 
   this.getField = function(name) {
-    return this.name;
+    return this;
   };
 
   return this;
 };
 
+Field.prototype.setSelector = function(selector) {
+  this.selector = selector;
+  return this;
+};
+
+Field.prototype.setDefaults = function(items) {
+  var defaults = this.getDefaults();
+  this.items = (typeof items == 'undefined') ? defaults.items : items;
+};
+
+Field.prototype.getDefaults = function() {
+  return {
+   'items' : []
+  };
+};
+
+Field.prototype.assertExists = function(message) {
+  t.assertSelectorExists(this.selector, message);
+  return this;
+};
+
+Field.prototype.assertHasItem = function(itemGlob, message) {
+  var selector = this.getItemSelector(itemGlob);
+  t.assertSelectorExists(selector, message);
+  return this;
+};
+
+Field.prototype.assertFollowHasItem = function(itemGlob, message) {
+  var selector = this.getItemSelector(itemGlob);
+  this.setSelector(selector);
+  t.assertSelectorExists(selector, message);
+  return this;
+};
+
+Field.prototype.getItemSelector = function (itemGlob) {
+  // We assume itemGlob is a class if it has no special characters.
+  if (/^[A-Za-z0-9\-]+$/.test(itemGlob)) {
+    itemGlob = '.' + itemGlob;
+  }
+
+  return this.selector + ' ' + itemGlob;
+};
 
 /**
  * Define Drupal View and casper behaviours.
  */
-var View = function(id, display, fields, items, isBox, isTable) {
+var View = function(id, display, isBlock, isTable, fields) {
 
   this.id = id;
-  this.setDefaults(display, fields, isBox, isTable);
+  this.setDefaults(display, isBlock, isTable, fields);
 
   this.setFields = function(fields) {
     this.fields = (fields instanceof Fields) ? fields : defaults.fields;
@@ -200,48 +230,53 @@ var View = function(id, display, fields, items, isBox, isTable) {
     var defaults = this.getDefaults();
   };
 
-  this.getDefaults = function() {
-  };
-
 };
 
 
-View.prototype.setDefaults = function(display, fields, isBox, isTable) {
+View.prototype.setDefaults = function(display, isBlock, isTable, fields) {
   var defaults = this.getDefaults();
 
-  this.display  = (typeof display === 'undefined') ? defaults.display : display ;
-  this.fields  = (typeof fields === 'undefined') ? defaults.fields : fields;
-  this.isBox   = (typeof isBox === 'undefined') ? defaults.isBox : isBox;
+  this.display = (typeof display === 'undefined') ? defaults.display : display ;
+  this.isBlock = (typeof isBlock === 'undefined') ? defaults.isBlock : isBlock;
   this.isTable = (typeof isTable === 'undefined') ? defaults.isTable : isTable;
+  this.fields  = (typeof fields === 'undefined') ? defaults.fields : fields;
+
+  return this;
 };
 
 View.prototype.getDefaults = function() {
   return  {
     'fields' : {},
     'display' : '',
-    'isBox' : false,
-    'isTable' : true
+    'isBlock' : false,
+    'isTable' : false
   };
 };
 
+View.prototype.getSelector = function() {
+  if (this.isBlock) {
+    return this.getBlockSelector();
+  }
+  else {
+    return 'div.view.view-' + this.id;
+  }
+};
 
 View.prototype.getBlockSelector = function() {
-  var selector = 'views-' + view.id + '-' + this.display;
-  return Block.getSelector(selector);
+  var display = this.getDisplay();
+  var selector = 'views-' + this.id + display + '.block-views';
+
+  var block = new Block(selector);
+  return block.getSelector();
+};
+
+View.prototype.getDisplay = function() {
+  return (this.dislplay !== '') ? '-' + this.display : this.display;
 };
 
 View.prototype.assertExists = function(message) {
   var selector = this.getSelector();
   return t.assertSelectorExists(selector, message);
-};
-
-View.prototype.getSelector = function() {
-  if (this.isBlock) {
-    return this.getBlockViewSelector();
-  }
-  else {
-    return 'div.view.view-' + this.id;
-  }
 };
 
 View.prototype.assertHasContent = function(view, message) {
@@ -262,7 +297,7 @@ View.prototype.getContentSelector = function() {
 View.prototype.assertContentHasField = function(field, message) {
   var selector = this.getFieldSelector(field);
   t.assertSelectorExists(selector, message);
-  return this.getField(field);
+  return new Field(selector);
 };
 
 View.prototype.getFieldSelector = function(field) {
@@ -272,7 +307,8 @@ View.prototype.getFieldSelector = function(field) {
 
 View.prototype.assertFieldHasLink = function(field) {
   var selector = this.getFieldLinkSelector(field);
-  return t.assertSelectorExists(selector);
+  t.assertSelectorExists(selector);
+  return this;
 };
 
 View.prototype.getFieldLinkSelector = function (field) {
@@ -280,7 +316,8 @@ View.prototype.getFieldLinkSelector = function (field) {
   return selector + ' a';
 };
 
-View.prototype.getFieldURL = function (view, field) {
-  var selector = this.getFieldLinkSelector(view, field);
+View.prototype.getFieldURL = function (field) {
+  var selector = this.getFieldLinkSelector(field);
+  return Eval.getHref(selector);
 };
 
