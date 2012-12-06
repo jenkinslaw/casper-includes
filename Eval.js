@@ -292,6 +292,11 @@ var FormField = function(id, id_type) {
 
 FormField.prototype = new Component('input');
 
+FormField.prototype.getValue = function() {
+  selector = this.getSelector();
+  return casper.getElementAttribute(selector, 'value');
+};
+
 /**
  * Define Drupal View and casper behaviours.
  */
