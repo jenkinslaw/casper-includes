@@ -131,6 +131,10 @@ Test.Slow = function() {
   casper.open(casperTestsDir + '/includes/View.html').then(function() {
     Test.Slow.View();
   });
+
+  casper.thenOpen(casperTestsDir + '/includes/Form.html', function() {
+    Test.Slow.FormField();
+  });
   t.comment('');
 };
 
@@ -145,5 +149,13 @@ Test.Slow.View = function() {
   view.assertContentHasField('content','The content has a content field')
     .assertHasItem('h3 a', 'The cotent field has a link.');
   t.comment('');
+};
+
+Test.Slow.FormField = function() {
+  t.comment('### Tesing file dependant FormField stuff. ###');
+  var formField = new FormField('edit-field-ask-address-0-additional');
+  var actual = formField.getLabel();
+  var expected ='Address Line 2: ';
+  t.assertEqual(actual, expected, 'FormField#getLabel works as expected.');
 };
 
