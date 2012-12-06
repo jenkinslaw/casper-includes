@@ -123,9 +123,9 @@ Component.prototype.getLabelSelector = function() {
   return 'label[for=' + id + ']';
 };
 
-Component.prototype.assertLabel  =  function(expected) {
+Component.prototype.assertLabel  =  function(expected, message) {
   var actual = this.getLabel();
-  t.assertEqual(actual, expected, 'Coponent#assertLabel is working as expected.');
+  t.assertEqual(actual, expected, message);
   return this;
 };
  
@@ -295,6 +295,13 @@ FormField.prototype = new Component('input');
 FormField.prototype.getValue = function() {
   selector = this.getSelector();
   return casper.getElementAttribute(selector, 'value');
+};
+
+FormField.prototype.assertValue = function (expected, message) {
+  var selector = this.getSelector();
+  var actual = this.getValue();
+  t.assertEqual(actual, expected, message);
+  return this;
 };
 
 /**
