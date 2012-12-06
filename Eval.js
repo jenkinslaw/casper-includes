@@ -270,6 +270,7 @@ Form.prototype.setDefaults = function(id_type) {
  * Define abstract FormField Class.
  */
 var FormField = function(id, id_type) {
+  this.id = id;
 };
 
 FormField.prototype = new Component('input');
