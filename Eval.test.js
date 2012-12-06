@@ -163,6 +163,8 @@ Test.Slow.FormField = function() {
   actual = formField.getValue();
   expected = 'Test Value';
   t.assertEqual(actual, expected, 'FormField#getValue works as expected.');
+
+  formField.assertValue('Test Value', 'FormField#assertValue works as exptected');
   t.comment('');
 };
 
