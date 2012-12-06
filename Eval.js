@@ -266,6 +266,13 @@ Form.prototype.setDefaults = function(id_type) {
 };
 
 
+/**
+ * Define abstract FormField Class.
+ */
+var FormField = function(id, id_type) {
+};
+
+FormField.prototype = new Component('input');
 
 /**
  * Define Drupal View and casper behaviours.
