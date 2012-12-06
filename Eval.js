@@ -71,26 +71,6 @@ Eval.assertFormHasField = function(form, field) {
 };
 
 
-/**
- * Defines a generic component class.
- * All our page components inherit behaviours from this class.
- */
-var Component = function(type){
-  this.setDefaults(arguments);
-};
-
-Component.prototype.setDefaults = function(id) {
-  var defaults  = this.getDefaults();
-  this.type = (typeof type == 'undefined') ? defaults.type : type;
-  return this;
-};
-
-Component.prototype.getDefaults = function() {
-  return {type : 'div'};
-};
-
-
-
 // Fetch the text of the first found of given selector.
 Eval.fetchFirstText = function(selector) {
   var Arguments = {
@@ -100,6 +80,37 @@ Eval.fetchFirstText = function(selector) {
   return casper.evaluate(function(selector){
     return $(selector + ':first').text();
   }, Arguments);
+};
+
+/**
+ * Defines a generic component class.
+ * All our page components inherit behaviours from this class.
+ */
+var Component = function(type){
+  this.setDefaults(type);
+};
+
+Component.prototype.setDefaults = function(type) {
+  var defaults  = this.getDefaults();
+  this.type = (typeof type == 'undefined') ? defaults.type : type;
+  return this;
+};
+
+Component.prototype.getDefaults = function() {
+  return {type : 'div'};
+};
+
+Component.prototype.getSelector = function() {
+  var type    = this.type;
+  var id      = this.id;
+  var id_type = this.getIdType(); 
+
+  return type + id_type + id;
+};
+
+Component.prototype.getIdType = function() {
+  var id_type = (typeof this.id === 'undefined') ? '.' : '#';
+  return id_type;
 };
 
 /**
@@ -237,6 +248,24 @@ Field.prototype.getItemSelector = function (itemGlob) {
 
   return this.selector + ' ' + itemGlob;
 };
+
+
+/**
+ * Defines a class to handle form assertions.
+ */
+var Form = function(id, id_type) {
+  this.id = id;
+  this.setDefaults(id_type);
+};
+
+Form.prototype = new Component('form');
+Form.prototype.setDefaults = function(id_type) {
+  var defaults = this.getDefaults();
+  this.id_type = (typeof id_type == 'undefined') ? defaults.id_type : id_type;
+  return this;
+};
+
+
 
 /**
  * Define Drupal View and casper behaviours.
