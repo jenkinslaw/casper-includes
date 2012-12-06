@@ -123,6 +123,11 @@ Component.prototype.getLabelSelector = function() {
   return 'label[for=' + id + ']';
 };
 
+Component.prototype.getName = function() {
+  var selector = this.getSelector();
+  return casper.getElementAttribute(selector, 'name');
+};
+
 Component.prototype.assertLabel  =  function(expected, message) {
   var actual = this.getLabel();
   t.assertEqual(actual, expected, message);
