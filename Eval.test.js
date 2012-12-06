@@ -57,6 +57,7 @@ Test.FormField = function() {
   t.comment('-----------------------------');
   t.comment('Testing the FormField object.');
   t.comment('-----------------------------');
+  var formField = new FormField('myFormFieldID');
   t.comment('');
 };
 
