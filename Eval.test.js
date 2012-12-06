@@ -127,6 +127,7 @@ Test.Slow = function() {
   t.comment('-------------------------------------');
   t.comment('Testing page dependant functionality.');
   t.comment('-------------------------------------');
+  t.comment('');
 
   casper.open(casperTestsDir + '/includes/View.html').then(function() {
     Test.Slow.View();
@@ -135,7 +136,6 @@ Test.Slow = function() {
   casper.thenOpen(casperTestsDir + '/includes/Form.html', function() {
     Test.Slow.FormField();
   });
-  t.comment('');
 };
 
 Test.Slow.View = function() {
@@ -165,9 +165,11 @@ Test.Slow.FormField = function() {
   t.assertEqual(actual, expected, 'FormField#getValue works as expected.');
 
   formField.assertValue('Test Value', 'FormField#assertValue works as exptected');
+
+  actual = formField.getName();
+  expected ='field_ask_address[0][additional]';
+  t.assertEqual(actual, expected, 'Component#getName works from FormField.');
   t.comment('');
 };
 
-
-window.Eval.dump('hello');
 
