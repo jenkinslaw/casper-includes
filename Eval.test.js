@@ -156,6 +156,9 @@ Test.Slow.FormField = function() {
   var formField = new FormField('edit-field-ask-address-0-additional');
   var actual = formField.getLabel();
   var expected ='Address Line 2: ';
-  t.assertEqual(actual, expected, 'FormField#getLabel works as expected.');
+  t.assertEqual(actual, expected, 'Component#getLabel works from FormField.');
+
+  formField.assertLabel('Address Line 2: ', 'Component#assertLabel works from FormField.');
+  t.comment('');
 };
 
