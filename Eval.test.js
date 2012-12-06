@@ -19,9 +19,9 @@ casper.run(function(){t.done();});
 
 
 Test.Component = function() {
-  t.comment('------------------------');
+  t.comment('-----------------------------');
   t.comment('Testing the Component object.');
-  t.comment('------------------------');
+  t.comment('-----------------------------');
 
   var component = new Component();
   t.assert(component instanceof Object, 'The Component object is defined.');
@@ -47,9 +47,9 @@ Test.Form = function() {
   t.comment('------------------------');
   var form= new Form('my-form');
 
-  var expected = form.getSelector();
-  var actual = 'form#my-form';
-  t.assertEqual(expected, actual, 'Form#getSelector works as exptected.');
+  var actual = form.getSelector();
+  var expected = 'form#my-form';
+  t.assertEqual(actual, expected, 'Form#getSelector works as exptected.');
   t.comment('');
 };
 
@@ -57,7 +57,12 @@ Test.FormField = function() {
   t.comment('-----------------------------');
   t.comment('Testing the FormField object.');
   t.comment('-----------------------------');
+
   var formField = new FormField('myFormFieldID');
+  var actual = formField.getSelector();
+  var expected = 'input#myFormFieldID';
+  t.assertEqual(actual, expected, 'FormField#Selector works as expected.');
+
   t.comment('');
 };
 
