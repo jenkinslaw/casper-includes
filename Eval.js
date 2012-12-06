@@ -113,6 +113,12 @@ Component.prototype.getIdType = function() {
   return id_type;
 };
 
+Component.prototype.getLabelSelector = function() {
+  var id = this.id;
+  return 'label[for=' + id + ']';
+};
+ 
+
 /**
  * Define Drupal Block and casper behaviors.
  */
