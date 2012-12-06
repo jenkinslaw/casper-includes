@@ -122,6 +122,12 @@ Component.prototype.getLabelSelector = function() {
   var id = this.id;
   return 'label[for=' + id + ']';
 };
+
+Component.prototype.assertLabel  =  function(expected) {
+  var actual = this.getLabel();
+  t.assertEqual(actual, expected, 'Coponent#assertLabel is working as expected.');
+  return this;
+};
  
 
 /**
