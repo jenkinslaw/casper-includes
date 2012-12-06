@@ -10,6 +10,8 @@ var testSlow       = casper.cli.get('testSlow');
 casper.start();
 casper.then(function() {Test.Component();});
 casper.then(function() {Test.Field();});
+casper.then(function() {Test.Form();});
+casper.then(function() {Test.FormField();});
 casper.then(function() {Test.Menu();});
 casper.then(function() {Test.View();});
 casper.then(function() {if (testSlow == 'yes') Test.Slow();});
@@ -24,6 +26,7 @@ Test.Component = function() {
   var component = new Component();
   t.assert(component instanceof Object, 'The Component object is defined.');
   t.assertEqual(component.type, 'div', 'The default component type is a div.');
+  t.comment('');
 };
 
 Test.Field = function() {
@@ -35,6 +38,26 @@ Test.Field = function() {
 
   t.assertEqual(field.getItemSelector('item'), 'field-selector .item', 'Field#geItemSelector works as expected.');
   t.assert(field instanceof Component, 'Fields are components.');
+  t.comment('');
+};
+
+Test.Form = function() {
+  t.comment('------------------------');
+  t.comment('Testing the Form object.');
+  t.comment('------------------------');
+  var form= new Form('my-form');
+
+  var expected = form.getSelector();
+  var actual = 'form#my-form';
+  t.assertEqual(expected, actual, 'Form#getSelector works as exptected.');
+  t.comment('');
+};
+
+Test.FormField = function() {
+  t.comment('-----------------------------');
+  t.comment('Testing the FormField object.');
+  t.comment('-----------------------------');
+  t.comment('');
 };
 
 Test.Menu = function() {
@@ -70,6 +93,10 @@ Test.View = function() {
   view = new View('testview', 'block_2', true);
   t.assert(view.isBlock, 'This view is a block.');
   t.assertEqual(view.getSelector(), 'div#block-views-testview-block_2.block-views', 'View returns correct block selector.');
+
+  var link = view.getFieldLinkSelector('content');
+  var link_expected = 'div#block-views-testview-block_2.block-views div.view-content div.views-row-1 div.content a';
+  t.assertEqual(link, link_expected, 'View#getFieldLinkSelector works as expected.');
   t.comment('');
 };
 
@@ -81,6 +108,7 @@ Test.Block = function() {
 
   var block = new Block('my-block');
   t.assert(block instanceof Component, 'Blocks are components.');
+  t.comment('');
 };
 
 // Loading a page take time.
@@ -93,7 +121,7 @@ Test.Slow = function() {
   casper.open(casperTestsDir + '/includes/View.html').then(function() {
     Test.Slow.View();
   });
-
+  t.comment('');
 };
 
 Test.Slow.View = function() {
@@ -106,5 +134,6 @@ Test.Slow.View = function() {
     .assertHasItem('month-day', 'The date has a month-day field.');
   view.assertContentHasField('content','The content has a content field')
     .assertHasItem('h3 a', 'The cotent field has a link.');
+  t.comment('');
 };
 
