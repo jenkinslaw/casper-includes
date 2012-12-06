@@ -63,6 +63,10 @@ Test.FormField = function() {
   var expected = 'input#myFormFieldID';
   t.assertEqual(actual, expected, 'FormField#Selector works as expected.');
 
+  actual = formField.getLabelSelector();
+  expected = 'label[for=myFormFieldID]';
+  t.assertEqual(actual, expected, 'FormField#getLabelSelector works correctly.');
+
   t.comment('');
 };
 
