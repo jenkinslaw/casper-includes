@@ -113,6 +113,11 @@ Component.prototype.getIdType = function() {
   return id_type;
 };
 
+Component.prototype.getLabel = function() {
+  var labelSelector = this.getLabelSelector();
+  return casper.fetchText(labelSelector);
+};
+
 Component.prototype.getLabelSelector = function() {
   var id = this.id;
   return 'label[for=' + id + ']';
