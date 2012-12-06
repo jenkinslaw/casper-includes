@@ -159,6 +159,13 @@ Test.Slow.FormField = function() {
   t.assertEqual(actual, expected, 'Component#getLabel works from FormField.');
 
   formField.assertLabel('Address Line 2: ', 'Component#assertLabel works from FormField.');
+
+  actual = formField.getValue();
+  expected = 'Test Value';
+  t.assertEqual(actual, expected, 'FormField#getValue works as expected.');
   t.comment('');
 };
+
+
+window.Eval.dump('hello');
 
