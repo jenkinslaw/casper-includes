@@ -1,8 +1,8 @@
 
 /**
- * @file 
- * A place to hold general external evaluations.
- */
+* @file
+* A place for our domain specific wrappers for casperjs functionality.
+*/
 
 var Eval = {};
 
@@ -31,7 +31,26 @@ Eval.callFunction = function(func){
  * Figures out if there is content given a content selector.
  */
 
+/*
+* A wrapper for casper's dump function.
+*/
+Eval.dump = function(element) {
+  return require('utils').dump(element);
+};
 
+/**
+* A Jenkins specific wrapper to title assertions.
+*/
+Eval.assertTitle = function(title, message) {
+  title = _add_page_title_boilerplate(title);
+  return t.assertTitle(title, message);
+};
+
+Eval.loginRequired = function(message){
+  return Eval.assertTitle('Login Required', message);
+};
+
+// Figures out if there is content given a content selector.
 Eval.contentHasItems = function(selector) {
   return $(selector).length >= 1;
 };
@@ -47,18 +66,17 @@ Eval.itemHasClass =  function(selector){
 };
 
 Eval.assertContentHasItems = function(selector, message) {
-  var Arguments = { 
-    'selector' : selector 
+  var Arguments = {
+    'selector' : selector
   };
   return t.assertEval(this.contentHasItems, message, Arguments);
 };
 
 Eval.assertItemHasContent = function(itemSelector, contentSelector, message) {
   var Arguments = {
-    'selector': 
-    {
-    'item' : itemSelector,
-    'content' : contentSelector
+    'selector': {
+      'item' : itemSelector,
+      'content' : contentSelector
     }
   };
 
@@ -73,140 +91,369 @@ Eval.assertItemHasClass = function(itemSelector, classSelector, message){
    }
  };
   return t.assertEval(this.itemHasClass, message, Arguments);
-
-
 };
 
 Eval.getHref = function(selector) {
-  var Arguments = { 
-    'selector' : selector 
+  var Arguments = {
+    'selector' : selector
   };
 
-  return casper.evaluate(function(selector){ 
+  return casper.evaluate(function(selector){
     return $(selector).attr('href');
   }, Arguments);
 };
 
-/**
- * Fetch the text of the first found of given selector.
- */
+Eval.assertPageHasForm = function(form) {
+};
+
+Eval.assertFormHasField = function(form, field) {
+};
+
+
+// Fetch the text of the first found of given selector.
 Eval.fetchFirstText = function(selector) {
-  var Arguments = { 
-    'selector' : selector 
+  var Arguments = {
+    'selector' : selector
   };
 
-  return casper.evaluate(function(selector){ 
+  return casper.evaluate(function(selector){
     return $(selector + ':first').text();
   }, Arguments);
 };
 
 /**
- * A wrapper for casper's dump function.
+ * Defines a generic component class.
+ * All our page components inherit behaviours from this class.
  */
-Eval.dump = function(element) {
-  return require('utils').dump(element);
-} 
+var Component = function(type){
+  this.setDefaults(type);
+};
+
+Component.prototype.setDefaults = function(type) {
+  var defaults  = this.getDefaults();
+  this.type = (typeof type == 'undefined') ? defaults.type : type;
+  return this;
+};
+
+Component.prototype.getDefaults = function() {
+  return {type : 'div'};
+};
+
+Component.prototype.getSelector = function() {
+  var type    = this.type;
+  var id      = this.id;
+  var id_type = this.getIdType(); 
+
+  return type + id_type + id;
+};
+
+Component.prototype.getIdType = function() {
+  var id_type = (typeof this.id === 'undefined') ? '.' : '#';
+  return id_type;
+};
+
+Component.prototype.getLabel = function() {
+  var labelSelector = this.getLabelSelector();
+  return casper.fetchText(labelSelector);
+};
+
+Component.prototype.getLabelSelector = function() {
+  var id = this.id;
+  return 'label[for=' + id + ']';
+};
+
+Component.prototype.getName = function() {
+  var selector = this.getSelector();
+  return casper.getElementAttribute(selector, 'name');
+};
+
+Component.prototype.assertLabel  =  function(expected, message) {
+  var actual = this.getLabel();
+  t.assertEqual(actual, expected, message);
+  return this;
+};
+ 
 
 /**
- * A Jenkins specific wrapper to title assertions.
+ * Define Drupal Block and casper behaviors.
  */
-Eval.assertTitle = function(title, message) {
-  title = _add_page_title_boilerplate(title);
-  return t.assertTitle(title, message);
-}
+var Block = function(id, title) {
+  var defaults = {
+    id : '',
+    title : ''
+  };
 
-Eval.loginRequired = function(message){
-  return Eval.assertTitle('Login Required', message)
-}
+  this.id = (typeof id === 'undefined') ? defaults.id : id;
+  this.title = (typeof title === 'undefined') ? defaults.title : title;
+};
 
-Eval.assertViewExists = function(view) {
-  var viewSelector = this.getViewSelector(view);
-}
+Block.prototype = new Component('block');
 
-Eval.getViewSelector = function(view) {
-   if (blockView = this.isBlockView(view)) {
-     view = '';   
-   } else {
-      view = '';
-   }
-   return view;
-}
+Block.prototype.assertExists = function(message) {
+  var selector = this.getSelector();
+  return t.assertSelectorExists(selector, message);
+};
 
-Eval.assertViewHasContent = function(view) {
-  var selector  = this.getViewSelector(view);
-}
+Block.prototype.assertHasView = function(view) {
+};
 
-Eval.assertBlockHasView = function(block, view) {
-}
+Block.prototype.getSelector = function(id) {
+  id = (typeof id === 'undefined') ? this.id : id;
+  var selector = (typeof this.selector === 'undefined') ?'div#block-' : this.blockSelector;
+  var type = this.getType();
 
-Eval.isBlockView = function(block, view) {
-}
+  return selector + type +  id;
+};
 
-Eval.assertViewHasContent = function(view) {
-  var selector = this.getViewSelector(view);
-}
+Block.prototype.getType = function() {
+  return (typeof this.blockType === 'undefined') ? '' : this.blockType + '-';
+};
 
-Eval.getViewContentSelector = function(view) {
-   var selector  = this.getViewSelector(view);
-   return selector + ' div.view-content';
-}
+Block.prototype.assertTitle = function(title) {
+};
 
-Eval.assertViewContentHasField = function(view, field) {
-   var selector = this.getViewFieldSelector(view, field);
-}
+Block.prototype.blockSelector = 'div#block-';
 
-Eval.getViewFieldSelector = function(view, field) {
-  var selector  = this.getViewContentSelector(view);
-  return selector + ' div.views-row-1 div.';
-}
 
-Eval.assertViewFieldHasLink = function(view, field) {
-  var selector = this.getViewFieldLinkSelector(view, field);
-}
 
-Eval.getViewFieldLinkSelector = function (view, field) {
-  var selector = this.getViewFieldSelector('view', 'field');
-  return selector + ' a';
-}
+/**
+ * Define Drupal Menu and casper behaviors.
+ */
+var Menu = function(id){
+  this.id = (typeof id === 'undefined') ? this.getDefaults().id : id;
+  this.blockType = 'menu';
+};
 
-Eval.getViewFieldURL = function (view, field) {
-  var selector = getViewFieldLinkSelector(view, field);
-}
+Menu.prototype = new Block('menu');
 
-Eval.assertPageHasForm = function(form) {
-}
-
-Eval.assertBlockExists = function(block, message) {
-  var selector = this.getBlockSelector(block);
+Menu.prototype.assertItemExists = function(item, message) {
+  var selector = this.getItemSelector(item);
   t.assertSelectorExists(selector, message);
-}
+  return this;
+};
 
-Eval.getBlockSelector = function(block) {
-  return 'div#block-' + block;
-}
-
-Eval.assertBlockTitle = function(block, title) {
-}
-
-Eval.assertFormHasField = function(form, field) {
-}
-
-Eval.assertSecondaryMenuExists = function(menu, message) {
-  var selector = this.getSecondaryMenuSelector(menu);
-  t.assertSelectorExists(selector, message);
-}
-
-Eval.getSecondaryMenuSelector = function(menu) {
-  var selector = this.getBlockSelector('menu-secondary-links');
-  return selector + ' a.menu-' + menu;
-}
+Menu.prototype.getItemSelector = function(item) {
+  var selector = this.getSelector();
+  return selector + ' a.menu-' + item;
+};
 
 
-Eval.assertSecondaryMenuName = function (menu, name, message) {
-  var selector = this.getSecondaryMenuSelector(menu);
+Menu.prototype.assertItemName = function (item, name, message) {
+  var selector = this.getItemSelector(item);
   t.assertSelectorHasText(selector, name, message);
-}
+  return this;
+};
 
-Eval.assertPrimaryMenuExists = function(menu) {
-}
+Menu.prototype.getDefaults  = function() {
+  return {
+    id : 'secondary-links'
+  };
+};
+
+/**
+ * Definition Field.
+ * Can be used to follow and assert any item.
+ */
+var Field = function(selector, items) {
+  this.setSelector(selector);
+  this.setDefaults(items);
+
+  this.getField = function(name) {
+    return this;
+  };
+
+  return this;
+};
+
+Field.prototype = new Component('div');
+
+Field.prototype.setSelector = function(selector) {
+  this.selector = selector;
+  return this;
+};
+
+Field.prototype.setDefaults = function(items) {
+  var defaults = this.getDefaults();
+  this.items = (typeof items == 'undefined') ? defaults.items : items;
+};
+
+Field.prototype.getDefaults = function() {
+  return {
+   'items' : []
+  };
+};
+
+Field.prototype.assertExists = function(message) {
+  t.assertSelectorExists(this.selector, message);
+  return this;
+};
+
+Field.prototype.assertHasItem = function(itemGlob, message) {
+  var selector = this.getItemSelector(itemGlob);
+  t.assertSelectorExists(selector, message);
+  return this;
+};
+
+Field.prototype.assertFollowHasItem = function(itemGlob, message) {
+  var selector = this.getItemSelector(itemGlob);
+  this.setSelector(selector);
+  t.assertSelectorExists(selector, message);
+  return this;
+};
+
+Field.prototype.getItemSelector = function (itemGlob) {
+  // We assume itemGlob is a class if it has no special characters.
+  if (/^[A-Za-z0-9\-]+$/.test(itemGlob)) {
+    itemGlob = '.' + itemGlob;
+  }
+
+  return this.selector + ' ' + itemGlob;
+};
+
+
+/**
+ * Defines a class to handle form assertions.
+ */
+var Form = function(id, id_type) {
+  this.id = id;
+  this.setDefaults(id_type);
+};
+
+Form.prototype = new Component('form');
+Form.prototype.setDefaults = function(id_type) {
+  var defaults = this.getDefaults();
+  this.id_type = (typeof id_type == 'undefined') ? defaults.id_type : id_type;
+  return this;
+};
+
+
+/**
+ * Define abstract FormField Class.
+ */
+var FormField = function(id, id_type) {
+  this.id = id;
+};
+
+FormField.prototype = new Component('input');
+
+FormField.prototype.getValue = function() {
+  selector = this.getSelector();
+  return casper.getElementAttribute(selector, 'value');
+};
+
+FormField.prototype.assertValue = function (expected, message) {
+  var selector = this.getSelector();
+  var actual = this.getValue();
+  t.assertEqual(actual, expected, message);
+  return this;
+};
+
+/**
+ * Define Drupal View and casper behaviours.
+ */
+var View = function(id, display, isBlock, isTable, fields) {
+
+  this.id = id;
+  this.setDefaults(display, isBlock, isTable, fields);
+
+  this.setFields = function(fields) {
+    this.fields = (fields instanceof Fields) ? fields : defaults.fields;
+  };
+
+  this.assertDefaults = function() {
+    var defaults = this.getDefaults();
+  };
+
+};
+
+View.prototype = new Component('view');
+
+
+View.prototype.setDefaults = function(display, isBlock, isTable, fields) {
+  var defaults = this.getDefaults();
+
+  this.display = (typeof display === 'undefined') ? defaults.display : display ;
+  this.isBlock = (typeof isBlock === 'undefined') ? defaults.isBlock : isBlock;
+  this.isTable = (typeof isTable === 'undefined') ? defaults.isTable : isTable;
+  this.fields  = (typeof fields === 'undefined') ? defaults.fields : fields;
+
+  return this;
+};
+
+View.prototype.getDefaults = function() {
+  return  {
+    'fields' : {},
+    'display' : '',
+    'isBlock' : false,
+    'isTable' : false
+  };
+};
+
+View.prototype.getSelector = function() {
+  if (this.isBlock) {
+    return this.getBlockSelector();
+  }
+  else {
+    return 'div.view.view-' + this.id;
+  }
+};
+
+View.prototype.getBlockSelector = function() {
+  var display = this.getDisplay();
+  var selector = 'views-' + this.id + display + '.block-views';
+
+  var block = new Block(selector);
+  return block.getSelector();
+};
+
+View.prototype.getDisplay = function() {
+  return (this.dislplay !== '') ? '-' + this.display : this.display;
+};
+
+View.prototype.assertExists = function(message) {
+  var selector = this.getSelector();
+  return t.assertSelectorExists(selector, message);
+};
+
+View.prototype.assertHasContent = function(view, message) {
+  var selector = this.getFirstRowSelector(view);
+  return t.assertSelectorExists(selector, message);
+};
+
+View.prototype.getFirstRowSelector = function(view) {
+  var selector = this.getContentSelector(view);
+  return selector + ' .views-row-first';
+};
+
+View.prototype.getContentSelector = function() {
+  var selector  = this.getSelector();
+  return selector + ' div.view-content';
+};
+
+View.prototype.assertContentHasField = function(field, message) {
+  var selector = this.getFieldSelector(field);
+  t.assertSelectorExists(selector, message);
+  return new Field(selector);
+};
+
+View.prototype.getFieldSelector = function(field) {
+  var selector  = this.getContentSelector();
+  return selector + ' div.views-row-1 div.' + field;
+};
+
+View.prototype.assertFieldHasLink = function(field) {
+  var selector = this.getFieldLinkSelector(field);
+  t.assertSelectorExists(selector);
+  return this;
+};
+
+View.prototype.getFieldLinkSelector = function (field) {
+  var selector = this.getFieldSelector(field);
+  return selector + ' a';
+};
+
+View.prototype.getFieldURL = function (field) {
+  var selector = this.getFieldLinkSelector(field);
+  return Eval.getHref(selector);
+};
 
