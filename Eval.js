@@ -6,25 +6,52 @@
 
 var Eval = {};
 
+
+Eval.callFunctionMultiple = function(func, items){
+  args = Array().slice.call(arguments).splice(2);
+  for (var item in items){
+    console.dir(args);
+    args.unshift(items[item]);
+    console.dir(args);
+    Eval.callFunction(func, args);
+    console.dir(args);
+    args.shift();
+    console.dir(args);
+  } 
+};
+
+Eval.callFunction = function(func){
+  //build an array of arguments after the req'd initial one
+  args = Array().slice.call(arguments).splice(1);
+  return func.apply(this, args);  
+};
+
+
 /**
  * Figures out if there is content given a content selector.
  */
+
+
 Eval.contentHasItems = function(selector) {
   return $(selector).length >= 1;
-}
+};
 
 
 Eval.itemHasContent = function(selector) {
   var Item = $(selector.item);
   return $(selector.content, Item).length >= 1;
-}
+};
+
+Eval.itemHasClass =  function(selector){
+  return $(selector.item).hasClass(selector.classname);
+};
 
 Eval.assertContentHasItems = function(selector, message) {
   var Arguments = { 
     'selector' : selector 
   };
   return t.assertEval(this.contentHasItems, message, Arguments);
-}
+};
 
 Eval.assertItemHasContent = function(itemSelector, contentSelector, message) {
   var Arguments = {
@@ -36,7 +63,19 @@ Eval.assertItemHasContent = function(itemSelector, contentSelector, message) {
   };
 
   return t.assertEval(this.itemHasContent, message, Arguments);
-}
+};
+
+Eval.assertItemHasClass = function(itemSelector, classSelector, message){
+ var Arguments = {
+  'selector':
+   { 'item' : itemSelector,
+     'classname': classSelector
+   }
+ };
+  return t.assertEval(this.itemHasClass, message, Arguments);
+
+
+};
 
 Eval.getHref = function(selector) {
   var Arguments = { 
@@ -46,7 +85,7 @@ Eval.getHref = function(selector) {
   return casper.evaluate(function(selector){ 
     return $(selector).attr('href');
   }, Arguments);
-}
+};
 
 /**
  * Fetch the text of the first found of given selector.
@@ -59,7 +98,7 @@ Eval.fetchFirstText = function(selector) {
   return casper.evaluate(function(selector){ 
     return $(selector + ':first').text();
   }, Arguments);
-}
+};
 
 /**
  * A wrapper for casper's dump function.
