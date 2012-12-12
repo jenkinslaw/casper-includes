@@ -1,5 +1,4 @@
 // Initializing steps.
-var utils          = require('utils');
 var t              = casper.test;
 var system         = require('system');
 var casperTestsDir = system.env._casper_tests;
@@ -121,7 +120,7 @@ Test.Block = function() {
   t.comment('');
 };
 
-// Loading a page take time.
+// Loading a page takes time.
 // We can disable these test when we don't need them.
 Test.Slow = function() {
   t.comment('-------------------------------------');
@@ -134,8 +133,10 @@ Test.Slow = function() {
   });
 
   casper.thenOpen(casperTestsDir + '/includes/Form.html', function() {
-    Test.Slow.FormField();
+    Test.Slow.Form();
   });
+
+  casper.then(function(){Test.Slow.FormField();});
 };
 
 Test.Slow.View = function() {
@@ -148,6 +149,18 @@ Test.Slow.View = function() {
     .assertHasItem('month-day', 'The date has a month-day field.');
   view.assertContentHasField('content','The content has a content field')
     .assertHasItem('h3 a', 'The cotent field has a link.');
+  t.comment('');
+};
+
+Test.Slow.Form = function() {
+  t.comment('### Tesing file dependant Form stuff. ###');
+  var form = new Form('node-form');
+  var formValues = casper.getFormValues(form.getSelector());
+
+  for (var fieldName in formValues) {
+    casper.echo ('form.assertFieldValue(' + '"' + fieldName + "'" + ', "' + '"' + formValues[fieldName] + '"');
+  }
+
   t.comment('');
 };
 
