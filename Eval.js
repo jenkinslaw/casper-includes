@@ -121,6 +121,19 @@ Eval.fetchFirstText = function(selector) {
   }, Arguments);
 };
 
+Eval.testMouseEvent = function(casper, element, event, test){
+  var pre = Eval[test](element);
+  var post = casper.waitFor(
+      function test() {
+         Eval.mouseEvent(event, element);
+      }, 
+      function then() {
+         return Eval[test](element); 
+      });  
+   return {'pre': pre , 'post' : post};
+};
+
+
 /**
  * Defines a generic component class.
  * All our page components inherit behaviours from this class.
