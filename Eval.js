@@ -120,18 +120,31 @@ Eval.fetchFirstText = function(selector) {
     return $(selector + ':first').text();
   }, Arguments);
 };
-
-Eval.testMouseEvent = function(casper, element, event, test){
-  var pre = Eval[test](element);
-  var post = casper.waitFor(
-      function test() {
-         Eval.mouseEvent(event, element);
-      }, 
-      function then() {
-         return Eval[test](element); 
-      });  
-   return {'pre': pre , 'post' : post};
+ 
+Eval.evalMouseEvent = function(element, test, event, callback, property, message){
+  var pre =  casper[test](element);
+  casper.waitFor( 
+    function() {
+      return casper.mouseEvent(event, element);
+    },
+    function then() {
+        post =  casper[test](element);
+        return callback(pre, post, property, message );
+    });
 };
+  
+Eval.greaterThan = function(pre, post, property, message ){
+  var changed = (post[property] >  pre[property]);
+   return t.assert(changed, message );
+};
+
+Eval.lessThan = function(pre, post, property, message ){
+  var changed = (post[property] <  pre[property]);
+   return t.assert(changed, message );
+};
+/* 
+ * More operator based functions coudl go here
+ */
 
 
 /**
