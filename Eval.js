@@ -120,6 +120,32 @@ Eval.fetchFirstText = function(selector) {
     return $(selector + ':first').text();
   }, Arguments);
 };
+ 
+Eval.evalMouseEvent = function(element, test, event, callback, property, message){
+  var pre =  casper[test](element);
+  casper.waitFor( 
+    function() {
+      return casper.mouseEvent(event, element);
+    },
+    function then() {
+        post =  casper[test](element);
+        return callback(pre, post, property, message );
+    });
+};
+  
+Eval.greaterThan = function(pre, post, property, message ){
+  var changed = (post[property] >  pre[property]);
+   return t.assert(changed, message );
+};
+
+Eval.lessThan = function(pre, post, property, message ){
+  var changed = (post[property] <  pre[property]);
+   return t.assert(changed, message );
+};
+/* 
+ * More operator based functions coudl go here
+ */
+
 
 /**
  * Defines a generic component class.
