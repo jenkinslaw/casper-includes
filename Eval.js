@@ -125,26 +125,26 @@ Eval.fetchFirstText = function(selector) {
  * Defines a generic component class.
  * All our page components inherit behaviours from this class.
  */
-var Component = function(type){
-  this.setDefaults(type);
+var Component = function(nodeType){
+  this.setDefaults(nodeType);
 };
 
-Component.prototype.setDefaults = function(type) {
+Component.prototype.setDefaults = function(nodeType) {
   var defaults  = this.getDefaults();
-  this.type = (typeof type == 'undefined') ? defaults.type : type;
+  this.nodeType = (typeof nodeType == 'undefined') ? defaults.nodeType : nodeType;
   return this;
 };
 
 Component.prototype.getDefaults = function() {
-  return {type : 'div'};
+  return {nodeType : 'div'};
 };
 
 Component.prototype.getSelector = function() {
-  var type    = this.type;
-  var id      = this.id;
-  var id_type = this.getIdType(); 
+  var nodeType = this.nodeType;
+  var id       = this.id;
+  var id_type  = this.getIdType(); 
 
-  return type + id_type + id;
+  return nodeType + id_type + id;
 };
 
 Component.prototype.getIdType = function() {
@@ -153,8 +153,11 @@ Component.prototype.getIdType = function() {
 };
 
 Component.prototype.getLabel = function() {
-  var labelSelector = this.getLabelSelector();
-  return casper.fetchText(labelSelector);
+  if (typeof this.label == 'undefined') {
+    var labelSelector = this.getLabelSelector();
+    return casper.fetchText(labelSelector);
+  }
+  return this.label;
 };
 
 Component.prototype.getLabelSelector = function() {
@@ -172,7 +175,12 @@ Component.prototype.assertLabel  =  function(expected, message) {
   t.assertEqual(actual, expected, message);
   return this;
 };
- 
+
+Component.prototype.assertExists = function(message) {
+  var selector = this.getSelector();
+  t.assertSelectorExists(selector, message);
+  return this;
+};
 
 /**
  * Define Drupal Block and casper behaviors.
@@ -188,11 +196,6 @@ var Block = function(id, title) {
 };
 
 Block.prototype = new Component('block');
-
-Block.prototype.assertExists = function(message) {
-  var selector = this.getSelector();
-  return t.assertSelectorExists(selector, message);
-};
 
 Block.prototype.assertHasView = function(view) {
 };
@@ -283,11 +286,6 @@ Field.prototype.getDefaults = function() {
   };
 };
 
-Field.prototype.assertExists = function(message) {
-  t.assertSelectorExists(this.selector, message);
-  return this;
-};
-
 Field.prototype.assertHasItem = function(itemGlob, message) {
   var selector = this.getItemSelector(itemGlob);
   t.assertSelectorExists(selector, message);
@@ -338,15 +336,70 @@ FormField.prototype = new Component('input');
 
 FormField.prototype.getValue = function() {
   selector = this.getSelector();
-  return casper.getElementAttribute(selector, 'value');
+  if (typeof this.value == 'undefined') {
+    return casper.getElementAttribute(selector, 'value');
+  }
+  else {
+    return this.value;
+  }
 };
 
+
+FormField.prototype.assertType  =  function(expected, message) {
+  var actual = this.getType();
+  t.assertEqual(actual, expected, message);
+  return this;
+};
+
+FormField.prototype.getType  =  function() {
+
+  selector = this.getSelector();
+
+  if (typeof this.type == 'undefined') {
+    return casper.getElementAttribute(selector, 'type');
+  }
+  else {
+    return this.type;
+  }
+};
+ 
 FormField.prototype.assertValue = function (expected, message) {
   var selector = this.getSelector();
   var actual = this.getValue();
   t.assertEqual(actual, expected, message);
   return this;
 };
+
+
+
+
+
+/**
+ * Factory for a fully formed form object, fields and all.
+ */
+var FormFactory = function(id, casper) {
+  var form = new Form(id);
+  form.fields = {};
+
+  var formValues = casper.getFormValues(form.getSelector());
+  for (var key in formValues) {
+
+    var field_selector = '[name="' + key + '"]';
+    var field_id = casper.getElementAttribute(field_selector, 'id');
+    var field_type = casper.getElementAttribute(field_selector, 'type');
+
+    var fieldKey = key.toCamel();
+
+    form.fields[fieldKey] = new FormField(field_id);
+    form.fields[fieldKey].type = field_type;
+    form.fields[fieldKey].name = key;
+    form.fields[fieldKey].value = formValues[key];
+    form.fields[fieldKey].label = form.fields[fieldKey].getLabel();
+
+  }
+  return form;
+};
+
 
 /**
  * Define Drupal View and casper behaviours.
@@ -410,11 +463,6 @@ View.prototype.getDisplay = function() {
   return (this.dislplay !== '') ? '-' + this.display : this.display;
 };
 
-View.prototype.assertExists = function(message) {
-  var selector = this.getSelector();
-  return t.assertSelectorExists(selector, message);
-};
-
 View.prototype.assertHasContent = function(view, message) {
   var selector = this.getFirstRowSelector(view);
   return t.assertSelectorExists(selector, message);
@@ -457,3 +505,11 @@ View.prototype.getFieldURL = function (field) {
   return Eval.getHref(selector);
 };
 
+String.prototype.toCamel = function(){
+  return this
+    .replace(/\[/g, '')
+    .replace(/(\][a-z])/g, function($1){return $1.toUpperCase().replace(']','');})
+    .replace(/(\-[a-z])/g, function($1){return $1.toUpperCase().replace('-','');})
+    .replace(/(\_[a-z])/g, function($1){return $1.toUpperCase().replace('_','');})
+    .replace(/\]/g,'');
+};

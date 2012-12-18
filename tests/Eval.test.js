@@ -13,7 +13,7 @@ casper.then(function() {Test.Form();});
 casper.then(function() {Test.FormField();});
 casper.then(function() {Test.Menu();});
 casper.then(function() {Test.View();});
-casper.then(function() {if (testSlow == 'yes') Test.Slow();});
+casper.then(function() {if (testSlow == 'yes') Test.Slow(this);});
 casper.run(function(){t.done();});
 
 
@@ -24,7 +24,7 @@ Test.Component = function() {
 
   var component = new Component();
   t.assert(component instanceof Object, 'The Component object is defined.');
-  t.assertEqual(component.type, 'div', 'The default component type is a div.');
+  t.assertEqual(component.nodeType, 'div', 'The default component type is a div.');
   t.comment('');
 };
 
@@ -122,24 +122,24 @@ Test.Block = function() {
 
 // Loading a page takes time.
 // We can disable these test when we don't need them.
-Test.Slow = function() {
+Test.Slow = function(casper) {
   t.comment('-------------------------------------');
   t.comment('Testing page dependant functionality.');
   t.comment('-------------------------------------');
   t.comment('');
 
   casper.open(casperTestsDir + '/includes/View.html').then(function() {
-    Test.Slow.View();
+    Test.Slow.View(this);
   });
 
   casper.thenOpen(casperTestsDir + '/includes/Form.html', function() {
-    Test.Slow.Form();
+    Test.Slow.Form(this);
   });
 
-  casper.then(function(){Test.Slow.FormField();});
+  casper.then(function(){Test.Slow.FormField(this);});
 };
 
-Test.Slow.View = function() {
+Test.Slow.View = function(casper) {
   t.comment('### Tesing file dependant View stuff. ###');
   var view = new View('whats-new');
   view.assertHasContent('There are items in the "Of Interest" view.');
@@ -152,19 +152,16 @@ Test.Slow.View = function() {
   t.comment('');
 };
 
-Test.Slow.Form = function() {
+Test.Slow.Form = function(casper) {
   t.comment('### Tesing file dependant Form stuff. ###');
-  var form = new Form('node-form');
-  var formValues = casper.getFormValues(form.getSelector());
+  t.comment('The following tests were automatically generated using ecto.vim');
 
-  for (var fieldName in formValues) {
-    casper.echo ('form.assertFieldValue(' + '"' + fieldName + "'" + ', "' + '"' + formValues[fieldName] + '"');
-  }
 
+  t.comment('');
   t.comment('');
 };
 
-Test.Slow.FormField = function() {
+Test.Slow.FormField = function(casper) {
   t.comment('### Tesing file dependant FormField stuff. ###');
   var formField = new FormField('edit-field-ask-address-0-additional');
   var actual = formField.getLabel();
