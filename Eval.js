@@ -17,13 +17,13 @@ Eval.callFunctionMultiple = function(func, items){
     console.dir(args);
     args.shift();
     console.dir(args);
-  } 
+  }
 };
 
 Eval.callFunction = function(func){
   //build an array of arguments after the req'd initial one
   args = Array().slice.call(arguments).splice(1);
-  return func.apply(this, args);  
+  return func.apply(this, args);
 };
 
 
@@ -120,10 +120,10 @@ Eval.fetchFirstText = function(selector) {
     return $(selector + ':first').text();
   }, Arguments);
 };
- 
+
 Eval.evalMouseEvent = function(element, test, event, callback, property, message){
   var pre =  casper[test](element);
-  casper.waitFor( 
+  casper.waitFor(
     function() {
       return casper.mouseEvent(event, element);
     },
@@ -132,7 +132,7 @@ Eval.evalMouseEvent = function(element, test, event, callback, property, message
         return callback(pre, post, property, message );
     });
 };
-  
+
 Eval.greaterThan = function(pre, post, property, message ){
   var changed = (post[property] >  pre[property]);
    return t.assert(changed, message );
@@ -142,7 +142,7 @@ Eval.lessThan = function(pre, post, property, message ){
   var changed = (post[property] <  pre[property]);
    return t.assert(changed, message );
 };
-/* 
+/*
  * More operator based functions coudl go here
  */
 
@@ -168,7 +168,7 @@ Component.prototype.getDefaults = function() {
 Component.prototype.getSelector = function() {
   var nodeType = this.nodeType;
   var id       = this.id;
-  var id_type  = this.getIdType(); 
+  var id_type  = this.getIdType();
 
   return nodeType + id_type + id;
 };
@@ -388,7 +388,11 @@ FormField.prototype.getType  =  function() {
     return this.type;
   }
 };
- 
+
+
+FormField.prototype.isSelector = function() {return (this.nodeType == 'selector');};
+
+
 FormField.prototype.assertValue = function (expected, message) {
   var selector = this.getSelector();
   var actual = this.getValue();
@@ -397,6 +401,18 @@ FormField.prototype.assertValue = function (expected, message) {
 };
 
 
+
+/**
+ * The Selector field requires it's own definition because
+ * we need a place to add methods for handling options.
+ */
+var SelectField = function(id, id_type) {
+  this.nodeType = 'select';
+  this.type = 'select';
+  this.id = id;
+};
+
+SelectField.prototype = new FormField();
 
 
 
@@ -408,22 +424,37 @@ var FormFactory = function(id, casper) {
   form.fields = {};
 
   var formValues = casper.getFormValues(form.getSelector());
+
   for (var key in formValues) {
+    var fieldKey = key.toCamel();
+    form.fields[fieldKey] = FieldFactory(key, formValues, casper);
+  }
+
+  return form;
+};
+
+
+/**
+ * Let's mitigate a little of the complexity of buildin the
+ * correct field for the job using a FieldFactory.
+ */
+var FieldFactory = function(key, formValues, casper) {
 
     var field_selector = '[name="' + key + '"]';
-    var field_id = casper.getElementAttribute(field_selector, 'id');
-    var field_type = casper.getElementAttribute(field_selector, 'type');
+    var field_info = casper.getElementInfo(field_selector);
+    var field_id = field_info.attributes.id;
+    var field_type = field_info.attributes.type;
 
-    var fieldKey = key.toCamel();
+    var field = (field_info.nodeName == 'select') ?
+    new SelectField(field_id) : new FormField(field_id);
 
-    form.fields[fieldKey] = new FormField(field_id);
-    form.fields[fieldKey].type = field_type;
-    form.fields[fieldKey].name = key;
-    form.fields[fieldKey].value = formValues[key];
-    form.fields[fieldKey].label = form.fields[fieldKey].getLabel();
+    field.name = key;
+    field.value = formValues[key];
+    field.label = field.getLabel();
+    field.type = (field_type) ? field_type : field.type;
+    field.info = field_info;
 
-  }
-  return form;
+    return field;
 };
 
 
