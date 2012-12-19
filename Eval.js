@@ -93,6 +93,13 @@ Eval.assertItemHasClass = function(itemSelector, classSelector, message){
   return t.assertEval(this.itemHasClass, message, Arguments);
 };
 
+Eval.assertSelectorHasText = function(selector, expectedText, message){
+  var actualText = (Eval.fetchFirstText(selector));
+  var containsText = (actualText.search(expectedText) != '-1');
+  return t.assert(containsText, message);
+
+};
+
 Eval.getHref = function(selector) {
   var Arguments = {
     'selector' : selector
