@@ -155,64 +155,73 @@ Test.Slow.View = function(casper) {
 Test.Slow.Form = function(casper) {
   t.comment('### Tesing file dependant Form stuff. ###');
   t.comment('The following tests were automatically generated using ecto.vim');
+  t.comment('');
+  t.comment('-------------------------------------');
+  t.comment('Testing FormFactory and FieldFactory.');
+  t.comment('-------------------------------------');
 
   var nodeForm = new FormFactory("node-form", casper);
   var fields = nodeForm.fields;
   nodeForm.assertExists("The form: node-form exists.");
 
-  fields.changed
-    .assertExists("The field - changed is present.")
-    .assertType("hidden", "The field type is: hidden")
-    .assertValue("", "The field value is: ");
-  casper.echo('');
-
-  fields.fieldAskAddress0Additional
+  var fieldAskAddress0Additional = fields.fieldAskAddress0Additional;
+  fieldAskAddress0Additional
     .assertExists("The field - field_ask_address[0][additional] is present.")
     .assertLabel("Address Line 2: ", "The field label is: Address Line 2: ")
     .assertType("text", "The field type is: text")
     .assertValue("Test Value", "The field value is: Test Value");
   casper.echo('');
 
-  fields.fieldAskAddress0Street
+  var fieldAskAddress0Street = fields.fieldAskAddress0Street;
+  fieldAskAddress0Street
     .assertExists("The field - field_ask_address[0][street] is present.")
     .assertLabel("Address Line 1: ", "The field label is: Address Line 1: ")
     .assertType("text", "The field type is: text")
     .assertValue("", "The field value is: ");
   casper.echo('');
 
-  fields.fieldAskClientFileNo0Value
+  var fieldAskClientFileNo0Value = fields.fieldAskClientFileNo0Value;
+  fieldAskClientFileNo0Value
     .assertExists("The field - field_ask_client_file_no[0][value] is present.")
     .assertLabel("Client File #: ", "The field label is: Client File #: ")
     .assertType("text", "The field type is: text")
     .assertValue("", "The field value is: ");
   casper.echo('');
 
-  fields.fieldAskDateNeeded0ValueDate
+  var fieldAskDateNeeded0ValueDate = fields.fieldAskDateNeeded0ValueDate;
+  fieldAskDateNeeded0ValueDate
     .assertExists("The field - field_ask_date_needed[0][value][date] is present.")
     .assertType("text", "The field type is: text")
     .assertValue("", "The field value is: ");
   casper.echo('');
 
-  fields.fieldAskDeliveryTypevalue
+  var fieldAskDeliveryTypevalue = fields.fieldAskDeliveryTypevalue;
+  fieldAskDeliveryTypevalue
     .assertExists("The field - field_ask_delivery_type[value] is present.")
     .assertLabel("Mode of Delivery: *", "The field label is: Mode of Delivery: *")
     .assertType("select", "The field type is: select")
     .assertValue("Blank ", "The field value is: Blank ");
+
+  fieldAskDeliveryTypevalue.options.Blank.assertValue("Blank%20", "The option value is: Blank%20")
+   .assertLabel("%20-%20Blank%20-", "The option label  is: %20-%20Blank%20-");
+  fieldAskDeliveryTypevalue.options.courier.assertValue("courier", "The option value is: courier")
+   .assertLabel("Courier", "The option label  is: Courier");
+  fieldAskDeliveryTypevalue.options.email.assertValue("email", "The option value is: email")
+   .assertLabel("Email", "The option label  is: Email");
+  fieldAskDeliveryTypevalue.options.fax.assertValue("fax", "The option value is: fax")
+   .assertLabel("Fax", "The option label  is: Fax");
+  fieldAskDeliveryTypevalue.options.fedex.assertValue("fedex", "The option value is: fedex")
+   .assertLabel("FedEx", "The option label  is: FedEx");
+  fieldAskDeliveryTypevalue.options.usps.assertValue("usps", "The option value is: usps")
+   .assertLabel("USPS", "The option label  is: USPS");
+  fieldAskDeliveryTypevalue.options.ups.assertValue("ups", "The option value is: ups")
+   .assertLabel("UPS", "The option label  is: UPS");
+  fieldAskDeliveryTypevalue.options.pickup.assertValue("pickup", "The option value is: pickup")
+   .assertLabel("Pickup%20at%20Jenkins%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20", "The option label  is: Pickup%20at%20Jenkins%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20");
   casper.echo('');
 
-  fields.formBuildId
-    .assertExists("The field - form_build_id is present.")
-    .assertType("hidden", "The field type is: hidden")
-    .assertValue("form-b99aa1b2772fcafc6ff0779e28c9275c", "The field value is: form-b99aa1b2772fcafc6ff0779e28c9275c");
-  casper.echo('');
-
-  fields.formId
-    .assertExists("The field - form_id is present.")
-    .assertType("hidden", "The field type is: hidden")
-    .assertValue("asklib_simplenode_form", "The field value is: asklib_simplenode_form");
-  casper.echo('');
-
-  fields.op
+  var op = fields.op;
+  op
     .assertExists("The field - op is present.")
     .assertType("submit", "The field type is: submit")
     .assertValue("Submit", "The field value is: Submit");

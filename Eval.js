@@ -408,7 +408,6 @@ FormField.prototype.assertValue = function (expected, message) {
 };
 
 
-
 /**
  * The Selector field requires it's own definition because
  * we need a place to add methods for handling options.
@@ -421,6 +420,52 @@ var SelectField = function(id, id_type) {
 
 SelectField.prototype = new FormField();
 
+
+/**
+ * We need a serealized version of the select options to work with.
+ */
+SelectField.prototype.getOptions = function() {
+  var options = {};
+  if (typeof this.info.tag != 'undefined' && this.info.tag) {
+    $('option', this.info.tag).each(function(index){
+       var value = $(this).val();
+       var label = $(this).text();
+       var option = new SelectField.Option(value, label);
+
+       options[option.key] = option;
+    });
+  }
+  return options;
+};
+
+
+
+/**
+ * Define an option class to handle option assertions.
+ */
+SelectField.Option = function(value, label) {
+  this.key =  value.trim().toCamel();
+  this.value = escape(value);
+  this.label = escape(label);
+};
+
+
+/**
+ * These options are built by the FieldFactory.
+ * So assertions assume an option is already present.
+ */
+SelectField.Option.prototype.assertValue = function(expected, message) {
+  var actual = this.value;
+  t.assertEqual(actual, expected, message);
+  return this;
+};
+
+
+SelectField.Option.prototype.assertLabel = function(expected, message) {
+  var actual = this.label;
+  t.assertEqual(actual, expected, message);
+  return this;
+};
 
 
 /**
@@ -447,19 +492,24 @@ var FormFactory = function(id, casper) {
  */
 var FieldFactory = function(key, formValues, casper) {
 
-    var field_selector = '[name="' + key + '"]';
-    var field_info = casper.getElementInfo(field_selector);
-    var field_id = field_info.attributes.id;
-    var field_type = field_info.attributes.type;
+    var field_selector =  '[name="' + key + '"]';
+    var field_info     =  casper.getElementInfo(field_selector);
+    var field_id       =  field_info.attributes.id;
+    var field_type     =  field_info.attributes.type;
 
     var field = (field_info.nodeName == 'select') ?
     new SelectField(field_id) : new FormField(field_id);
 
-    field.name = key;
-    field.value = formValues[key];
-    field.label = field.getLabel();
-    field.type = (field_type) ? field_type : field.type;
-    field.info = field_info;
+    field.name     = key;
+    field.field_id = key.toCamel();
+    field.value    = formValues[key];
+    field.label    = field.getLabel();
+    field.type     = (field_type) ? field_type : field.type;
+    field.info     = field_info;
+
+    if (field.type == 'select') {
+      field.options = field.getOptions();
+    }
 
     return field;
 };
@@ -577,3 +627,8 @@ String.prototype.toCamel = function(){
     .replace(/(\_[a-z])/g, function($1){return $1.toUpperCase().replace('_','');})
     .replace(/\]/g,'');
 };
+
+String.prototype.trim = function() {
+  return $.trim(this);
+};
+
