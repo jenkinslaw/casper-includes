@@ -1,10 +1,13 @@
-phantom.injectJs('casper-includes/vendor/jquery.min.js');
-phantom.injectJs('casper-includes/functions.js');
-phantom.injectJs('casper-includes/src/components.js');
-phantom.injectJs('casper-includes/src/blocks.js');
-phantom.injectJs('casper-includes/src/menus.js');
-phantom.injectJs('casper-includes/src/forms.js');
-phantom.injectJs('casper-includes/src/views.js');
+
+var casperIncludes  = casper.cli.get('casperIncludes');
+
+phantom.injectJs(casperIncludes + '/vendor/jquery.min.js');
+phantom.injectJs(casperIncludes + '/functions.js');
+phantom.injectJs(casperIncludes + '/src/components.js');
+phantom.injectJs(casperIncludes + '/src/blocks.js');
+phantom.injectJs(casperIncludes + '/src/menus.js');
+phantom.injectJs(casperIncludes + '/src/forms.js');
+phantom.injectJs(casperIncludes + '/src/views.js');
 
 /**
 * @file
