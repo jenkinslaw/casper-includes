@@ -103,3 +103,12 @@ View.prototype.getFieldURL = function (field) {
   var selector = this.getFieldLinkSelector(field);
   return Eval.getHref(selector);
 };
+
+/**
+ * Factory for a fully formed view object.
+ */
+var ViewFactory = function(id, casper) {
+  var view = new View(id);
+  return view;
+};
+
