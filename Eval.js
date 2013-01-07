@@ -163,3 +163,15 @@ Eval.equals =  function(pre, post, property, message){
     return t.assertEquals(pre, post, message);
 };
 
+String.prototype.toCamel = function(){
+  return this
+  .replace(/\[/g, '')
+    .replace(/(\][a-z])/g, function($1){return $1.toUpperCase().replace(']','');})
+    .replace(/(\-[a-z])/g, function($1){return $1.toUpperCase().replace('-','');})
+    .replace(/(\_[a-z])/g, function($1){return $1.toUpperCase().replace('_','');})
+    .replace(/\]/g,'');
+};
+
+String.prototype.trim = function() {
+  return $.trim(this);
+};
