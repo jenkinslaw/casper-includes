@@ -1,7 +1,8 @@
 // Initializing steps.
 var t              = casper.test;
 var system         = require('system');
-var casperTestsDir = system.env._casper_tests;
+var casperIncludes = casper.cli.get('casperIncludes');
+var casperTestsDir = casperIncludes + '/tests';
 var Test           = function(){};
 var testSlow       = casper.cli.get('testSlow');
 
@@ -127,6 +128,8 @@ Test.Slow = function(casper) {
   t.comment('Testing page dependant functionality.');
   t.comment('-------------------------------------');
   t.comment('');
+
+  Eval.dump(casperTestsDir);
 
   casper.open(casperTestsDir + '/includes/View.html').then(function() {
     Test.Slow.View(this);
