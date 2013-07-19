@@ -19,14 +19,10 @@ var Eval = {};
 Eval.callFunctionMultiple = function(func, items){
   args = Array().slice.call(arguments).splice(2);
   for (var item in items){
-    console.dir(args);
     args.unshift(items[item]);
-    console.dir(args);
     Eval.callFunction(func, args);
-    console.dir(args);
     args.shift();
-    console.dir(args);
-  }
+  } 
 };
 
 Eval.callFunction = function(func){
@@ -135,16 +131,23 @@ Eval.fetchFirstText = function(selector) {
   }, Arguments);
 };
 
+Eval.getElementValue = function(element){
+  return casper.evaluate(
+    function(element){
+      return $(element).attr('value');
+    }, element);
+};
+
 Eval.evalMouseEvent = function(element, test, event, callback, property, message){
-  var pre =  casper[test](element);
-  casper.waitFor(
-    function() {
+  var pre =  test(element);
+  casper.waitFor( 
+     function() {
       return casper.mouseEvent(event, element);
-    },
-    function then() {
-        post =  casper[test](element);
-        return callback(pre, post, property, message );
-    });
+     },
+     function then() {
+        post =  test(element);
+        return callback(pre, post,  message );
+     });
 };
 
 Eval.greaterThan = function(pre, post, property, message ){
@@ -154,18 +157,15 @@ Eval.greaterThan = function(pre, post, property, message ){
 
 Eval.lessThan = function(pre, post, property, message ){
   var changed = (post[property] <  pre[property]);
-   return t.assert(changed, message );
+   return t.assertEquals(changed, message );
 };
-
-
-/*
- * More operator based functions coudl go here
- */
-
+Eval.equals =  function(pre, post, property, message){
+    return t.assertEquals(pre, post, message);
+};
 
 String.prototype.toCamel = function(){
   return this
-    .replace(/\[/g, '')
+  .replace(/\[/g, '')
     .replace(/(\][a-z])/g, function($1){return $1.toUpperCase().replace(']','');})
     .replace(/(\-[a-z])/g, function($1){return $1.toUpperCase().replace('-','');})
     .replace(/(\_[a-z])/g, function($1){return $1.toUpperCase().replace('_','');})
@@ -175,4 +175,3 @@ String.prototype.toCamel = function(){
 String.prototype.trim = function() {
   return $.trim(this);
 };
-
