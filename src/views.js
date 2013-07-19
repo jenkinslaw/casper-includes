@@ -109,6 +109,12 @@ View.prototype.getFieldURL = function (field) {
  */
 var ViewFactory = function(id, casper) {
   var view = new View(id);
+
+  var viewInfo = casper.getElementInfo('.view');
+  var viewContentInfo = casper.getElementInfo('.view-content');
+  Eval.dump(viewInfo);
+  Eval.dump(viewContentInfo);
+
   return view;
 };
 
