@@ -1,64 +1,69 @@
-
+/* global t, casper */
 /**
  * Defines a generic component class.
  * All our page components inherit behaviours from this class.
  */
 var Component = function(nodeType){
+  "use strict";
   this.setDefaults(nodeType);
 };
 
-Component.prototype.setDefaults = function(nodeType) {
-  var defaults  = this.getDefaults();
-  this.nodeType = (typeof nodeType == 'undefined') ? defaults.nodeType : nodeType;
-  return this;
-};
+(function(){
+  "use strict";
 
-Component.prototype.getDefaults = function() {
-  return {nodeType : 'div'};
-};
+  Component.prototype.setDefaults = function(nodeType) {
+    var defaults  = this.getDefaults();
+    this.nodeType = (typeof nodeType === 'undefined') ? defaults.nodeType : nodeType;
+    return this;
+  };
 
-Component.prototype.getSelector = function() {
-  var nodeType = this.nodeType;
-  var id       = this.id;
-  var id_type  = this.getIdType();
+  Component.prototype.getDefaults = function() {
+    return {nodeType : 'div'};
+  };
 
-  return nodeType + id_type + id;
-};
+  Component.prototype.getSelector = function() {
+    var nodeType = this.nodeType;
+    var id       = this.id;
+    var id_type  = this.getIdType();
 
-Component.prototype.getIdType = function() {
-  var id_type = (typeof this.id === 'undefined') ? '.' : '#';
-  return id_type;
-};
+    return nodeType + id_type + id;
+  };
 
-Component.prototype.getLabel = function() {
-  if (typeof this.label == 'undefined') {
-    var labelSelector = this.getLabelSelector();
-    return casper.fetchText(labelSelector);
-  }
-  return this.label;
-};
+  Component.prototype.getIdType = function() {
+    var id_type = (typeof this.id === 'undefined') ? '.' : '#';
+    return id_type;
+  };
 
-Component.prototype.getLabelSelector = function() {
-  var id = this.id;
-  return 'label[for=' + id + ']';
-};
+  Component.prototype.getLabel = function() {
+    if (typeof this.label === 'undefined') {
+      var labelSelector = this.getLabelSelector();
+      return casper.fetchText(labelSelector);
+    }
+    return this.label;
+  };
 
-Component.prototype.getName = function() {
-  var selector = this.getSelector();
-  return casper.getElementAttribute(selector, 'name');
-};
+  Component.prototype.getLabelSelector = function() {
+    var id = this.id;
+    return 'label[for=' + id + ']';
+  };
 
-Component.prototype.assertLabel  =  function(expected, message) {
-  var actual = this.getLabel();
-  t.assertEqual(actual, expected, message);
-  return this;
-};
+  Component.prototype.getName = function() {
+    var selector = this.getSelector();
+    return casper.getElementAttribute(selector, 'name');
+  };
 
-Component.prototype.assertExists = function(message) {
-  var selector = this.getSelector();
-  t.assertSelectorExists(selector, message);
-  return this;
-};
+  Component.prototype.assertLabel  =  function(expected, message) {
+    var actual = this.getLabel();
+    t.assertEqual(actual, expected, message);
+    return this;
+  };
+
+  Component.prototype.assertExists = function(message) {
+    var selector = this.getSelector();
+    t.assertSelectorExists(selector, message);
+    return this;
+  };
+}());
 
 
 /**
@@ -66,6 +71,7 @@ Component.prototype.assertExists = function(message) {
  * Can be used to follow and assert any item.
  */
 var Field = function(selector, items) {
+  "use strict";
   this.setSelector(selector);
   this.setDefaults(items);
 
@@ -76,43 +82,48 @@ var Field = function(selector, items) {
   return this;
 };
 
-Field.prototype = new Component('div');
+(function(){
+  "use strict";
 
-Field.prototype.setSelector = function(selector) {
-  this.selector = selector;
-  return this;
-};
+  Field.prototype = new Component('div');
 
-Field.prototype.setDefaults = function(items) {
-  var defaults = this.getDefaults();
-  this.items = (typeof items == 'undefined') ? defaults.items : items;
-};
-
-Field.prototype.getDefaults = function() {
-  return {
-   'items' : []
+  Field.prototype.setSelector = function(selector) {
+    this.selector = selector;
+    return this;
   };
-};
 
-Field.prototype.assertHasItem = function(itemGlob, message) {
-  var selector = this.getItemSelector(itemGlob);
-  t.assertSelectorExists(selector, message);
-  return this;
-};
+  Field.prototype.setDefaults = function(items) {
+    var defaults = this.getDefaults();
+    this.items = (typeof items === 'undefined') ? defaults.items : items;
+  };
 
-Field.prototype.assertFollowHasItem = function(itemGlob, message) {
-  var selector = this.getItemSelector(itemGlob);
-  this.setSelector(selector);
-  t.assertSelectorExists(selector, message);
-  return this;
-};
+  Field.prototype.getDefaults = function() {
+    return {
+      'items' : []
+    };
+  };
 
-Field.prototype.getItemSelector = function (itemGlob) {
-  // We assume itemGlob is a class if it has no special characters.
-  if (/^[A-Za-z0-9\-]+$/.test(itemGlob)) {
-    itemGlob = '.' + itemGlob;
-  }
+  Field.prototype.assertHasItem = function(itemGlob, message) {
+    var selector = this.getItemSelector(itemGlob);
+    t.assertSelectorExists(selector, message);
+    return this;
+  };
 
-  return this.selector + ' ' + itemGlob;
-};
+  Field.prototype.assertFollowHasItem = function(itemGlob, message) {
+    var selector = this.getItemSelector(itemGlob);
+    this.setSelector(selector);
+    t.assertSelectorExists(selector, message);
+    return this;
+  };
+
+  Field.prototype.getItemSelector = function (itemGlob) {
+    // We assume itemGlob is a class if it has no special characters.
+    if (/^[A-Za-z0-9\-]+$/.test(itemGlob)) {
+      itemGlob = '.' + itemGlob;
+    }
+
+    return this.selector + ' ' + itemGlob;
+  };
+
+}());
 
