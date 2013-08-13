@@ -139,24 +139,30 @@ var Eval = {};
       }, element);
   };
 
-  Eval.evalMouseEvent = function(element, test, event, callback, property, message){
-    var pre =  test(element);
+  Eval.evalMouseEvent = function(element, test, event, callback, property, message, time){
+    var pre =  casper[test](element);
     casper.waitFor(
       function() {
-        return casper.mouseEvent(event, element);
+        casper.mouseEvent(event, element);
+        if (time === undefined) {
+          time = 1;
+        }
+        return casper.wait(time);
       },
       function then() {
-        var post =  test(element);
-        return callback(pre, post,  message );
+        var post =  casper[test](element);
+        return callback(pre, post, property, message );
       });
   };
 
   Eval.greaterThan = function(pre, post, property, message ){
+    t.comment("Testing that " + post[property] + "is greater than " + pre[property]);
     var changed = (post[property] >  pre[property]);
     return t.assert(changed, message );
   };
 
   Eval.lessThan = function(pre, post, property, message ){
+    t.comment("Testing that " + post[property] + "is less than " + pre[property]);
     var changed = (post[property] <  pre[property]);
     return t.assertEquals(changed, message );
   };
