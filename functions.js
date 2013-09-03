@@ -39,3 +39,7 @@ function _add_page_title_boilerplate(title) {
   title += " | Jenkins Law Library";
   return title;
 }
+function _create_selector_from_field_title(title) {
+  "use strict";
+  return "[name='" + title +  "']";
+}
