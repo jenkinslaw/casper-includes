@@ -145,7 +145,7 @@ var Eval = {};
       function() {
         casper.mouseEvent(event, element);
         if (time === undefined) {
-          time = 1;
+          time = 5;
         }
         return casper.wait(time);
       },
