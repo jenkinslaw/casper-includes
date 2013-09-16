@@ -1,5 +1,5 @@
-/*global Eval, Component, Menu, Field, Form, Field */
-/*global FormField, Block, View, FormFactory, casper */
+/* global Eval, Component, Menu, Field, Form, Field */
+/* global FormField, Block, View, FormFactory, casper */
 
 // Initializing steps.
 var t              = casper.test;
