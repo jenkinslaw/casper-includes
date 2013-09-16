@@ -1,4 +1,4 @@
-casper-includes
+casper-includes [![Build Status](https://travis-ci.org/jenkinslaw/casper-includes.png?branch=master)](https://travis-ci.org/jenkinslaw/casper-includes)
 ===============
 
 This is a utility library to help generate casperjs functional test.
