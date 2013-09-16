@@ -5,7 +5,7 @@
     "devel":         true,
     "eqeqeq":        true,
     "evil":          false,
-    "maxparams":     6,
+    "maxparams":     7,
     "maxdepth":      3,
     "maxstatements": 40,
     "maxcomplexity": 7,
