@@ -1,0 +1,24 @@
+branches:
+  only:
+    - "master"
+
+before_install:
+  - echo "installing PhantomJS 1.9.0"
+  - wget http://phantomjs.googlecode.com/files/phantomjs-1.9.0-linux-x86_64.tar.bz2
+  - tar -xvf phantomjs-1.9.0-linux-x86_64.tar.bz2
+  - sudo mv phantomjs-1.9.0-linux-x86_64/bin/phantomjs bin/phantomjs190
+  - bin/phantomjs190 --version
+  - ls -la bin/phantomjs190
+  - echo "installing CasperJS 1.1-beta1"
+  - wget https://github.com/n1k0/casperjs/tarball/1.1-beta1 -O casperjs-1.1-beta1.tgz
+  - mkdir casperjs
+  - tar -xvf casperjs-1.1-beta1.tgz -C casperjs --strip-components 1
+
+before_script:
+  - "npm install -g jshint@2.0.1"
+
+script:
+  - make test
+env:
+  - PHANTOMJS_EXECUTABLE="bin/phantomjs190 --local-to-remote-url-access=yes --ignore-ssl-errors=yes" CASPERJS="casperjs/bin/casperjs"
+

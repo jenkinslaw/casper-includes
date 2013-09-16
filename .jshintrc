@@ -1,0 +1,28 @@
+{
+    "asi":           true,
+    "browser":       true,
+    "debug":         true,
+    "devel":         true,
+    "eqeqeq":        true,
+    "evil":          false,
+    "maxparams":     6,
+    "maxdepth":      3,
+    "maxstatements": 40,
+    "maxcomplexity": 7,
+    "proto":         true,
+    "regexdash":     true,
+    "strict":        true,
+    "sub":           true,
+    "trailing":      true,
+    "undef":         true,
+    "predef"     : [
+        "exports",
+        "phantom",
+        "window",
+        "require",
+        "escape",
+        "jquery",
+        "$"
+    
+    ]
+}
